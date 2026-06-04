@@ -1,16 +1,20 @@
-import { BrowserRouter, Router } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import Collections from "./components/Collections";
+import About from "./components/About";
+import Contact from "./components/Contact";
 
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Router>
-        <route path="/" element={<Home />} />
-        <route path="/about" element={<About />} />
-        <route path="/collections" element={<Collections />} />
-        <route path="/contact" element={<Contact />} />
-      </Router>
+      <Routes>
+        <Route path="/" element={<Hero />} />
+        <Route path="/collections" element={<Collections />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+      </Routes>
     </BrowserRouter>
   );
 }

@@ -1,3 +1,32 @@
 @tailwind base;
-@tailwind utilities;
 @tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0a0a0a;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #0a0a0a;
+}
+
+/* Hide scrollbar visually but keep scroll working */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+* {
+  scrollbar-width: none;
+}
