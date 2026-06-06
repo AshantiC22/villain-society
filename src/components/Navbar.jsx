@@ -8,7 +8,7 @@ function Navbar() {
   const closeMenu = () => setIsOpen(false);
 
   return (
-    <nav className="fixed top-0 w-full z-[200] bg-black/80 backdrop-blur-md border-b border-red-800/30">
+    <nav className="fixed top-0 w-full z-[200] bg-black/80 backdrop-blur-2xl">
       {/* ── MAIN BAR ── */}
       <div className="flex justify-between items-center px-6 py-4">
         {/* Hamburger — mobile only */}
