@@ -4,18 +4,13 @@ import { submitContact } from "../api";
 const SOCIALS = [
   {
     label: "INSTAGRAM",
-    handle: "@villainsociety",
-    href: "https://instagram.com/villainsociety",
+    handle: "@vllnculture",
+    href: "https://instagram.com/vllnculture",
   },
   {
     label: "TIKTOK",
-    handle: "@villainsociety",
-    href: "https://tiktok.com/@villainsociety",
-  },
-  {
-    label: "TWITTER / X",
-    handle: "@villainsociety",
-    href: "https://x.com/villainsociety",
+    handle: "@vllnculture",
+    href: "https://tiktok.com/@vllnculture",
   },
 ];
 
