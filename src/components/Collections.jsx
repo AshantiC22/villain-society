@@ -8,6 +8,7 @@ const products = [
     roman: "I",
     subtitle: "THE FOUNDATION",
     images: ["/products/villain-front.png", "/products/villain-back.png"],
+    modelImage: "/models/villain-tee-model.png",
     description: "Built in silence. Worn with authority.",
     details:
       "Heavy 400gsm fleece. Oversized cut. Villain Society embroidered chest logo. Drop shoulder. Ribbed cuffs and hem.",
@@ -21,7 +22,8 @@ const products = [
     name: "VILLAIN ARCHIVE TEE",
     roman: "II",
     subtitle: "THE MARK",
-    images: [],
+    images: ["/products/product-2-front.png"],
+    modelImage: "/models/archive-tee-model.png",
     description: "Minimal design. Maximum intent.",
     details:
       "Premium 280gsm cotton. Oversized fit. Screen printed graphics. Pre-shrunk. Dropped shoulders.",
@@ -35,7 +37,8 @@ const products = [
     name: "CONTROL UNIT JOGGERS",
     roman: "III",
     subtitle: "THE MOVEMENT",
-    images: [],
+    images: ["/products/product-3-front.png"],
+    modelImage: "/models/joggers-model.png",
     description: "Engineered for movement. Designed for dominance.",
     details:
       "French terry fabric. Tapered fit. Villain Society side tape. Deep side pockets.",
@@ -49,7 +52,8 @@ const products = [
     name: "SHADOW OPS JACKET",
     roman: "IV",
     subtitle: "THE SHIELD",
-    images: [],
+    images: ["/products/product-4-front.png"],
+    modelImage: "/models/jacket-model.png",
     description: "For those who move unseen.",
     details:
       "Nylon shell. Villain Society back print. Zip pockets. Adjustable hood. Lightweight.",
@@ -63,7 +67,8 @@ const products = [
     name: "VOID RUNNER SHORTS",
     roman: "V",
     subtitle: "THE SPEED",
-    images: [],
+    images: ["/products/product-5-front.png"],
+    modelImage: "/models/shorts-model.png",
     description: "Cut for speed. Built for the streets.",
     details:
       "Moisture wicking fabric. 7 inch inseam. Villain Society embroidered logo. Lined interior.",
@@ -77,7 +82,8 @@ const products = [
     name: "CORRUPTED CARGOS",
     roman: "VI",
     subtitle: "THE UTILITY",
-    images: [],
+    images: ["/products/product-6-front.png"],
+    modelImage: "/models/cargos-model.png",
     description: "Utility meets darkness.",
     details:
       "Heavy duty cotton twill. Relaxed fit. 8 pockets. Villain Society patch. Adjustable hem.",
@@ -91,7 +97,8 @@ const products = [
     name: "BLACKOUT LONG SLEEVE",
     roman: "VII",
     subtitle: "THE SHADOW",
-    images: [],
+    images: ["/products/product-7-front.png"],
+    modelImage: "/models/longsleeve-model.png",
     description: "Stay covered. Stay dangerous.",
     details:
       "Heavyweight cotton. Dropped shoulders. Villain Society sleeve print. Ribbed cuffs.",
@@ -105,7 +112,8 @@ const products = [
     name: "ROGUE VARSITY JACKET",
     roman: "VIII",
     subtitle: "THE REBEL",
-    images: [],
+    images: ["/products/product-8-front.png"],
+    modelImage: "/models/varsity-model.png",
     description: "For the ones who never followed the rules.",
     details:
       "Wool blend body. Leather sleeves. Embroidered villain patches. Quilted lining.",
@@ -120,6 +128,7 @@ const products = [
     roman: "IX",
     subtitle: "THE CROWN",
     images: [],
+    modelImage: "/models/cap-model.png",
     description: "Let the silence speak.",
     details:
       "6 panel structured cap. Villain Society embroidered logo. Adjustable strap. One size.",
@@ -154,8 +163,8 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
       }}
       onClick={() => onFlip(product)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = `rotate(${angle}deg) translateY(${yOffset - 20}px)`;
-        e.currentTarget.style.filter = "brightness(1.4)";
+        e.currentTarget.style.transform = `rotate(${angle}deg) translateY(${yOffset - 10}px)`;
+        e.currentTarget.style.filter = "brightness(1.2)";
         e.currentTarget.style.zIndex = "20";
         onHoverFlip(product.id);
       }}
@@ -280,143 +289,125 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
             WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
             borderRadius: "8px",
-            background:
-              "linear-gradient(170deg, #261508 0%, #160c04 40%, #1e1006 100%)",
-            border: "1px solid rgba(200,110,15,0.45)",
+            background: "#0a0604",
+            border: "1px solid rgba(200,110,15,0.55)",
             overflow: "hidden",
             boxShadow:
-              "0 8px 32px rgba(0,0,0,0.6), 0 0 24px rgba(200,110,15,0.15)",
-            display: "flex",
-            flexDirection: "column",
+              "0 8px 32px rgba(0,0,0,0.8), 0 0 24px rgba(200,110,15,0.2)",
           }}
         >
+          {/* Full-bleed shirt image */}
+          {product.images && product.images[0] ? (
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                objectPosition: "center",
+                padding: "6px",
+                filter: "brightness(1.25) contrast(1.05) saturate(1.05)",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "Special Elite",
+                  fontSize: "6px",
+                  letterSpacing: "1px",
+                  color: "rgba(200,110,15,0.5)",
+                  textAlign: "center",
+                }}
+              >
+                COMING
+                <br />
+                SOON
+              </p>
+            </div>
+          )}
+
+          {/* Roman numeral top-left */}
+          <p
+            style={{
+              position: "absolute",
+              top: "6px",
+              left: "0",
+              right: "0",
+              textAlign: "center",
+              fontFamily: "Metal Mania",
+              fontSize: "clamp(8px, 1vw, 11px)",
+              letterSpacing: "3px",
+              color: "rgba(200,110,15,0.95)",
+              zIndex: 4,
+              textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+            }}
+          >
+            {product.roman}
+          </p>
+
+          {/* Corner brackets */}
+          {[
+            {
+              top: "4px",
+              left: "4px",
+              borderTop: "1px solid rgba(200,110,15,0.6)",
+              borderLeft: "1px solid rgba(200,110,15,0.6)",
+            },
+            {
+              top: "4px",
+              right: "4px",
+              borderTop: "1px solid rgba(200,110,15,0.6)",
+              borderRight: "1px solid rgba(200,110,15,0.6)",
+            },
+            {
+              bottom: "4px",
+              left: "4px",
+              borderBottom: "1px solid rgba(200,110,15,0.6)",
+              borderLeft: "1px solid rgba(200,110,15,0.6)",
+            },
+            {
+              bottom: "4px",
+              right: "4px",
+              borderBottom: "1px solid rgba(200,110,15,0.6)",
+              borderRight: "1px solid rgba(200,110,15,0.6)",
+            },
+          ].map((s, i) => (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                width: "10px",
+                height: "10px",
+                zIndex: 4,
+                ...s,
+              }}
+            />
+          ))}
+
+          {/* Bottom gradient + name */}
           <div
             style={{
               position: "absolute",
-              top: 0,
+              bottom: 0,
               left: 0,
               right: 0,
-              height: "2px",
+              padding: "20px 8px 8px",
               background:
-                "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
-            }}
-          />
-          <div
-            style={{
-              padding: "8px 0 4px",
+                "linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%)",
+              zIndex: 4,
               textAlign: "center",
-              borderBottom: "1px solid rgba(200,110,15,0.2)",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: "Metal Mania",
-                fontSize: "clamp(8px, 1vw, 11px)",
-                letterSpacing: "3px",
-                color: "rgba(200,110,15,0.9)",
-              }}
-            >
-              {product.roman}
-            </p>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "8px",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: "4px",
-                left: "4px",
-                width: "10px",
-                height: "10px",
-                borderTop: "1px solid rgba(200,110,15,0.45)",
-                borderLeft: "1px solid rgba(200,110,15,0.45)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "4px",
-                right: "4px",
-                width: "10px",
-                height: "10px",
-                borderTop: "1px solid rgba(200,110,15,0.45)",
-                borderRight: "1px solid rgba(200,110,15,0.45)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "4px",
-                left: "4px",
-                width: "10px",
-                height: "10px",
-                borderBottom: "1px solid rgba(200,110,15,0.45)",
-                borderLeft: "1px solid rgba(200,110,15,0.45)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "4px",
-                right: "4px",
-                width: "10px",
-                height: "10px",
-                borderBottom: "1px solid rgba(200,110,15,0.45)",
-                borderRight: "1px solid rgba(200,110,15,0.45)",
-              }}
-            />
-            {product.images && product.images[0] ? (
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                style={{
-                  width: "80%",
-                  height: "80%",
-                  objectFit: "contain",
-                  filter: "sepia(0.1) brightness(1.1)",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: "40px",
-                  height: "50px",
-                  border: "1px solid rgba(200,110,15,0.3)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "Special Elite",
-                    fontSize: "6px",
-                    letterSpacing: "1px",
-                    color: "rgba(200,110,15,0.5)",
-                    textAlign: "center",
-                  }}
-                >
-                  COMING
-                  <br />
-                  SOON
-                </p>
-              </div>
-            )}
-          </div>
-          <div
-            style={{
-              padding: "6px 8px 8px",
-              textAlign: "center",
-              borderTop: "1px solid rgba(200,110,15,0.2)",
             }}
           >
             <p
@@ -424,7 +415,7 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
                 fontFamily: "Metal Mania",
                 fontSize: "clamp(5px, 0.7vw, 7px)",
                 letterSpacing: "1px",
-                color: "rgba(245,240,232,0.9)",
+                color: "rgba(245,240,232,0.95)",
                 lineHeight: 1.2,
                 marginBottom: "2px",
               }}
@@ -436,12 +427,14 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
                 fontFamily: "Special Elite",
                 fontSize: "clamp(5px, 0.6vw, 6px)",
                 letterSpacing: "2px",
-                color: "rgba(200,110,15,0.7)",
+                color: "rgba(200,110,15,0.85)",
               }}
             >
               {product.subtitle}
             </p>
           </div>
+
+          {/* Top gold line */}
           <div
             style={{
               position: "absolute",
@@ -577,143 +570,126 @@ function StackCard({ product, isFlipped }) {
           WebkitBackfaceVisibility: "hidden",
           transform: "rotateY(180deg)",
           borderRadius: "12px",
-          background:
-            "linear-gradient(170deg, #261508 0%, #160c04 40%, #1e1006 100%)",
-          border: "1px solid rgba(200,110,15,0.45)",
+          background: "#0a0604",
+          border: "1px solid rgba(200,110,15,0.55)",
           overflow: "hidden",
           boxShadow:
-            "0 12px 40px rgba(0,0,0,0.7), 0 0 30px rgba(200,110,15,0.15)",
-          display: "flex",
-          flexDirection: "column",
+            "0 12px 40px rgba(0,0,0,0.8), 0 0 30px rgba(200,110,15,0.2)",
         }}
       >
+        {/* Full-bleed shirt image */}
+        {product.images && product.images[0] ? (
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              objectPosition: "center",
+              padding: "8px",
+
+              filter: "brightness(1.25) contrast(1.05) saturate(1.05)",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "Special Elite",
+                fontSize: "7px",
+                letterSpacing: "1px",
+                color: "rgba(200,110,15,0.5)",
+                textAlign: "center",
+              }}
+            >
+              COMING
+              <br />
+              SOON
+            </p>
+          </div>
+        )}
+
+        {/* Roman numeral */}
+        <p
+          style={{
+            position: "absolute",
+            top: "10px",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            fontFamily: "Metal Mania",
+            fontSize: "14px",
+            letterSpacing: "4px",
+            color: "rgba(200,110,15,0.95)",
+            zIndex: 4,
+            textShadow: "0 1px 8px rgba(0,0,0,0.9)",
+          }}
+        >
+          {product.roman}
+        </p>
+
+        {/* Corner brackets */}
+        {[
+          {
+            top: "6px",
+            left: "6px",
+            borderTop: "1px solid rgba(200,110,15,0.6)",
+            borderLeft: "1px solid rgba(200,110,15,0.6)",
+          },
+          {
+            top: "6px",
+            right: "6px",
+            borderTop: "1px solid rgba(200,110,15,0.6)",
+            borderRight: "1px solid rgba(200,110,15,0.6)",
+          },
+          {
+            bottom: "6px",
+            left: "6px",
+            borderBottom: "1px solid rgba(200,110,15,0.6)",
+            borderLeft: "1px solid rgba(200,110,15,0.6)",
+          },
+          {
+            bottom: "6px",
+            right: "6px",
+            borderBottom: "1px solid rgba(200,110,15,0.6)",
+            borderRight: "1px solid rgba(200,110,15,0.6)",
+          },
+        ].map((s, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              width: "14px",
+              height: "14px",
+              zIndex: 4,
+              ...s,
+            }}
+          />
+        ))}
+
+        {/* Bottom gradient + name */}
         <div
           style={{
             position: "absolute",
-            top: 0,
+            bottom: 0,
             left: 0,
             right: 0,
-            height: "2px",
+            padding: "28px 12px 10px",
             background:
-              "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
-          }}
-        />
-        <div
-          style={{
-            padding: "10px 0 6px",
+              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%)",
+            zIndex: 4,
             textAlign: "center",
-            borderBottom: "1px solid rgba(200,110,15,0.2)",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Metal Mania",
-              fontSize: "14px",
-              letterSpacing: "4px",
-              color: "rgba(200,110,15,0.9)",
-            }}
-          >
-            {product.roman}
-          </p>
-        </div>
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "12px",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "6px",
-              left: "6px",
-              width: "14px",
-              height: "14px",
-              borderTop: "1px solid rgba(200,110,15,0.45)",
-              borderLeft: "1px solid rgba(200,110,15,0.45)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: "6px",
-              right: "6px",
-              width: "14px",
-              height: "14px",
-              borderTop: "1px solid rgba(200,110,15,0.45)",
-              borderRight: "1px solid rgba(200,110,15,0.45)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "6px",
-              left: "6px",
-              width: "14px",
-              height: "14px",
-              borderBottom: "1px solid rgba(200,110,15,0.45)",
-              borderLeft: "1px solid rgba(200,110,15,0.45)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "6px",
-              right: "6px",
-              width: "14px",
-              height: "14px",
-              borderBottom: "1px solid rgba(200,110,15,0.45)",
-              borderRight: "1px solid rgba(200,110,15,0.45)",
-            }}
-          />
-          {product.images && product.images[0] ? (
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              style={{
-                width: "85%",
-                height: "85%",
-                objectFit: "contain",
-                filter: "sepia(0.1) brightness(1.1)",
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: "60px",
-                height: "80px",
-                border: "1px solid rgba(200,110,15,0.3)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "Special Elite",
-                  fontSize: "7px",
-                  letterSpacing: "1px",
-                  color: "rgba(200,110,15,0.5)",
-                  textAlign: "center",
-                }}
-              >
-                COMING
-                <br />
-                SOON
-              </p>
-            </div>
-          )}
-        </div>
-        <div
-          style={{
-            padding: "8px 12px 10px",
-            textAlign: "center",
-            borderTop: "1px solid rgba(200,110,15,0.2)",
           }}
         >
           <p
@@ -721,7 +697,7 @@ function StackCard({ product, isFlipped }) {
               fontFamily: "Metal Mania",
               fontSize: "10px",
               letterSpacing: "1px",
-              color: "rgba(245,240,232,0.9)",
+              color: "rgba(245,240,232,0.95)",
               lineHeight: 1.2,
               marginBottom: "3px",
             }}
@@ -733,12 +709,14 @@ function StackCard({ product, isFlipped }) {
               fontFamily: "Special Elite",
               fontSize: "7px",
               letterSpacing: "3px",
-              color: "rgba(200,110,15,0.7)",
+              color: "rgba(200,110,15,0.85)",
             }}
           >
             {product.subtitle}
           </p>
         </div>
+
+        {/* Bottom gold line */}
         <div
           style={{
             position: "absolute",
@@ -748,6 +726,7 @@ function StackCard({ product, isFlipped }) {
             height: "2px",
             background:
               "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
+            zIndex: 5,
           }}
         />
       </div>
@@ -886,7 +865,6 @@ function MobileStack({ products, onOpenModal }) {
         padding: "20px 0 40px",
       }}
     >
-      {/* Stack container */}
       <div
         style={{
           position: "relative",
@@ -895,7 +873,6 @@ function MobileStack({ products, onOpenModal }) {
           marginBottom: "20px",
         }}
       >
-        {/* Third card */}
         {thirdCard && (
           <div
             style={{
@@ -908,8 +885,6 @@ function MobileStack({ products, onOpenModal }) {
             <StackCard product={thirdCard} isFlipped={false} />
           </div>
         )}
-
-        {/* Second card */}
         {secondCard && (
           <div
             style={{
@@ -923,8 +898,6 @@ function MobileStack({ products, onOpenModal }) {
             <StackCard product={secondCard} isFlipped={false} />
           </div>
         )}
-
-        {/* Top card */}
         {topCard && (
           <div
             style={{
@@ -948,7 +921,6 @@ function MobileStack({ products, onOpenModal }) {
             onClick={handleTap}
           >
             <StackCard product={topCard} isFlipped={isFlipped} />
-
             {dragX > 40 && (
               <div
                 style={{
@@ -1000,8 +972,6 @@ function MobileStack({ products, onOpenModal }) {
           </div>
         )}
       </div>
-
-      {/* Counter */}
       <p
         style={{
           fontFamily: "Special Elite",
@@ -1013,8 +983,6 @@ function MobileStack({ products, onOpenModal }) {
       >
         {stack.length} / {products.length} REMAINING
       </p>
-
-      {/* Hint */}
       <p
         style={{
           fontFamily: "Special Elite",
@@ -1025,8 +993,6 @@ function MobileStack({ products, onOpenModal }) {
       >
         {isFlipped ? "OPENING..." : "SWIPE · TAP TO REVEAL"}
       </p>
-
-      {/* Dots */}
       <div style={{ display: "flex", gap: "5px", marginTop: "12px" }}>
         {products.map((_, i) => {
           const fromTop = products.length - stack.length;
@@ -1053,9 +1019,11 @@ function MobileStack({ products, onOpenModal }) {
 
 function Collections() {
   const [hoveredId, setHoveredId] = useState(null);
+  const [zoomedProduct, setZoomedProduct] = useState(null);
   const [selected, setSelected] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [showModel, setShowModel] = useState(false);
   const [waitlistStatus, setWaitlistStatus] = useState("idle");
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -1067,10 +1035,19 @@ function Collections() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") setZoomedProduct(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const openModal = (product) => {
     setSelected(product);
     setSelectedSize(null);
     setActiveImage(0);
+    setShowModel(false);
     setWaitlistStatus("idle");
     setWaitlistEmail("");
   };
@@ -1079,6 +1056,7 @@ function Collections() {
     setSelected(null);
     setSelectedSize(null);
     setActiveImage(0);
+    setShowModel(false);
     setWaitlistStatus("idle");
     setWaitlistEmail("");
   };
@@ -1119,6 +1097,14 @@ function Collections() {
       setWaitlistStatus("idle");
     }
   };
+
+  // Which image src to show in the modal
+  const currentImageSrc = showModel
+    ? selected?.modelImage
+    : selected?.images?.[activeImage];
+
+  const hasProductImages = selected?.images && selected.images.length > 0;
+  const hasModelImage = !!selected?.modelImage;
 
   return (
     <div
@@ -1205,7 +1191,6 @@ function Collections() {
 
         {/* Cards */}
         <div className="flex-1 flex flex-col items-center justify-center">
-          {/* Desktop — tarot arc */}
           {!isMobile && (
             <div
               style={{
@@ -1231,7 +1216,6 @@ function Collections() {
             </div>
           )}
 
-          {/* Mobile — stacked deck */}
           {isMobile && (
             <MobileStack products={products} onOpenModal={openModal} />
           )}
@@ -1332,42 +1316,53 @@ function Collections() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2">
-              {/* Image side */}
+              {/* ── IMAGE PANEL ── */}
               <div
                 style={{
-                  minHeight: isMobile ? "220px" : "400px",
-                  background: "#120a04",
+                  // FIX: explicit height so the image has a bounded container
+                  height: isMobile ? "280px" : "460px",
+                  background: "transparent",
                   borderRight: "1px solid rgba(200,110,15,0.1)",
                   position: "relative",
                   overflow: "hidden",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
-                {selected.images && selected.images[activeImage] ? (
+                {currentImageSrc ? (
                   <>
                     <img
-                      src={selected.images[activeImage]}
+                      src={currentImageSrc}
                       alt={selected.name}
+                      onClick={() => !showModel && setZoomedProduct(selected)}
                       style={{
                         position: "absolute",
                         inset: 0,
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        objectFit: showModel ? "cover" : "contain",
+                        padding: showModel ? "0" : "16px",
                         zIndex: 2,
-                        filter: "sepia(0.1) brightness(1.0)",
+
+                        filter: showModel
+                          ? "none"
+                          : "brightness(1.15) contrast(1.05)",
+                        transition: "opacity 0.3s ease",
+                        cursor: showModel ? "default" : "zoom-in",
                       }}
                     />
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.2)",
-                        zIndex: 3,
-                      }}
-                    />
+                    {showModel && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          background: "rgba(0,0,0,0.25)",
+                          zIndex: 3,
+                        }}
+                      />
+                    )}
                   </>
                 ) : (
                   <div style={{ zIndex: 2, textAlign: "center" }}>
@@ -1395,6 +1390,7 @@ function Collections() {
                   </div>
                 )}
 
+                {/* Corner brackets */}
                 {[
                   "top-4 left-4",
                   "top-4 right-4",
@@ -1420,131 +1416,204 @@ function Collections() {
                   />
                 ))}
 
-                {selected.images && selected.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      style={{
-                        position: "absolute",
-                        left: "12px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        zIndex: 10,
-                        background: "rgba(0,0,0,0.55)",
-                        border: "1px solid rgba(200,110,15,0.3)",
-                        borderRadius: "50%",
-                        width: "36px",
-                        height: "36px",
-                        cursor: "pointer",
-                        color: "rgba(200,110,15,0.8)",
-                        fontSize: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backdropFilter: "blur(8px)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor =
-                          "rgba(200,110,15,0.8)";
-                        e.currentTarget.style.background =
-                          "rgba(200,110,15,0.2)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor =
-                          "rgba(200,110,15,0.3)";
-                        e.currentTarget.style.background = "rgba(0,0,0,0.55)";
-                      }}
-                    >
-                      ←
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      style={{
-                        position: "absolute",
-                        right: "12px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        zIndex: 10,
-                        background: "rgba(0,0,0,0.55)",
-                        border: "1px solid rgba(200,110,15,0.3)",
-                        borderRadius: "50%",
-                        width: "36px",
-                        height: "36px",
-                        cursor: "pointer",
-                        color: "rgba(200,110,15,0.8)",
-                        fontSize: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backdropFilter: "blur(8px)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor =
-                          "rgba(200,110,15,0.8)";
-                        e.currentTarget.style.background =
-                          "rgba(200,110,15,0.2)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor =
-                          "rgba(200,110,15,0.3)";
-                        e.currentTarget.style.background = "rgba(0,0,0,0.55)";
-                      }}
-                    >
-                      →
-                    </button>
-                  </>
-                )}
-
-                {selected.images && selected.images.length > 1 && (
+                {/* ── PRODUCT / MODEL TOGGLE ── */}
+                {(hasProductImages || hasModelImage) && (
                   <div
                     style={{
                       position: "absolute",
-                      bottom: "16px",
+                      top: "12px",
                       left: "50%",
                       transform: "translateX(-50%)",
                       zIndex: 10,
                       display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "6px",
+                      background: "rgba(0,0,0,0.65)",
+                      border: "1px solid rgba(200,110,15,0.25)",
+                      borderRadius: "999px",
+                      overflow: "hidden",
+                      backdropFilter: "blur(8px)",
                     }}
                   >
-                    <p
-                      style={{
-                        fontFamily: "Special Elite",
-                        fontSize: "8px",
-                        letterSpacing: "4px",
-                        color: "rgba(200,110,15,0.65)",
-                      }}
-                    >
-                      {VIEW_LABELS[activeImage]}
-                    </p>
-                    <div style={{ display: "flex", gap: "6px" }}>
-                      {selected.images.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setActiveImage(i)}
-                          style={{
-                            width: i === activeImage ? "16px" : "5px",
-                            height: "5px",
-                            borderRadius: "999px",
-                            border: "none",
-                            cursor: "pointer",
-                            padding: 0,
-                            background:
-                              i === activeImage
-                                ? "rgba(200,110,15,0.9)"
-                                : "rgba(245,240,232,0.25)",
-                            transition: "all 0.3s ease",
-                          }}
-                        />
-                      ))}
-                    </div>
+                    {hasProductImages && (
+                      <button
+                        onClick={() => {
+                          setShowModel(false);
+                          setActiveImage(0);
+                        }}
+                        style={{
+                          fontFamily: "Special Elite",
+                          fontSize: "8px",
+                          letterSpacing: "2px",
+                          padding: "5px 12px",
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          background: !showModel
+                            ? "rgba(200,110,15,0.85)"
+                            : "transparent",
+                          color: !showModel
+                            ? "rgba(5,3,1,0.95)"
+                            : "rgba(200,110,15,0.55)",
+                        }}
+                      >
+                        PRODUCT
+                      </button>
+                    )}
+                    {hasModelImage && (
+                      <button
+                        onClick={() => setShowModel(true)}
+                        style={{
+                          fontFamily: "Special Elite",
+                          fontSize: "8px",
+                          letterSpacing: "2px",
+                          padding: "5px 12px",
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          background: showModel
+                            ? "rgba(200,110,15,0.85)"
+                            : "transparent",
+                          color: showModel
+                            ? "rgba(5,3,1,0.95)"
+                            : "rgba(200,110,15,0.55)",
+                        }}
+                      >
+                        MODEL
+                      </button>
+                    )}
                   </div>
                 )}
+
+                {/* Prev/Next — only in product view with multiple images */}
+                {!showModel &&
+                  selected.images &&
+                  selected.images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        style={{
+                          position: "absolute",
+                          left: "12px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          zIndex: 10,
+                          background: "rgba(0,0,0,0.55)",
+                          border: "1px solid rgba(200,110,15,0.3)",
+                          borderRadius: "50%",
+                          width: "36px",
+                          height: "36px",
+                          cursor: "pointer",
+                          color: "rgba(200,110,15,0.8)",
+                          fontSize: "16px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backdropFilter: "blur(8px)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor =
+                            "rgba(200,110,15,0.8)";
+                          e.currentTarget.style.background =
+                            "rgba(200,110,15,0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor =
+                            "rgba(200,110,15,0.3)";
+                          e.currentTarget.style.background = "rgba(0,0,0,0.55)";
+                        }}
+                      >
+                        ←
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        style={{
+                          position: "absolute",
+                          right: "12px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          zIndex: 10,
+                          background: "rgba(0,0,0,0.55)",
+                          border: "1px solid rgba(200,110,15,0.3)",
+                          borderRadius: "50%",
+                          width: "36px",
+                          height: "36px",
+                          cursor: "pointer",
+                          color: "rgba(200,110,15,0.8)",
+                          fontSize: "16px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backdropFilter: "blur(8px)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor =
+                            "rgba(200,110,15,0.8)";
+                          e.currentTarget.style.background =
+                            "rgba(200,110,15,0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor =
+                            "rgba(200,110,15,0.3)";
+                          e.currentTarget.style.background = "rgba(0,0,0,0.55)";
+                        }}
+                      >
+                        →
+                      </button>
+                    </>
+                  )}
+
+                {/* Dot indicators — product view only */}
+                {!showModel &&
+                  selected.images &&
+                  selected.images.length > 1 && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "16px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        zIndex: 10,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: "Special Elite",
+                          fontSize: "8px",
+                          letterSpacing: "4px",
+                          color: "rgba(200,110,15,0.65)",
+                        }}
+                      >
+                        {VIEW_LABELS[activeImage]}
+                      </p>
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        {selected.images.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setActiveImage(i)}
+                            style={{
+                              width: i === activeImage ? "16px" : "5px",
+                              height: "5px",
+                              borderRadius: "999px",
+                              border: "none",
+                              cursor: "pointer",
+                              padding: 0,
+                              background:
+                                i === activeImage
+                                  ? "rgba(200,110,15,0.9)"
+                                  : "rgba(245,240,232,0.25)",
+                              transition: "all 0.3s ease",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
               </div>
 
-              {/* Details side */}
+              {/* ── DETAILS PANEL ── */}
               <div className="flex flex-col gap-5 p-6 md:p-8">
                 <div>
                   <h2
@@ -1778,6 +1847,133 @@ function Collections() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── LIGHTBOX ZOOM ── */}
+      {zoomedProduct && (
+        <div
+          onClick={() => setZoomedProduct(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(0,0,0,0.92)",
+            backdropFilter: "blur(16px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "zoom-out",
+            padding: "24px",
+          }}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setZoomedProduct(null)}
+            style={{
+              position: "absolute",
+              top: "20px",
+              right: "20px",
+              background: "none",
+              border: "1px solid rgba(200,110,15,0.4)",
+              color: "rgba(200,110,15,0.8)",
+              borderRadius: "50%",
+              width: "36px",
+              height: "36px",
+              cursor: "pointer",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(200,110,15,0.15)";
+              e.currentTarget.style.borderColor = "rgba(200,110,15,0.9)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "none";
+              e.currentTarget.style.borderColor = "rgba(200,110,15,0.4)";
+            }}
+          >
+            ✕
+          </button>
+
+          {/* Product name top */}
+          <div
+            style={{
+              position: "absolute",
+              top: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              textAlign: "center",
+              zIndex: 10,
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "Metal Mania",
+                fontSize: "clamp(12px, 2vw, 18px)",
+                letterSpacing: "0.2em",
+                color: "rgba(245,240,232,0.9)",
+                textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+              }}
+            >
+              {zoomedProduct.name}
+            </p>
+            <p
+              style={{
+                fontFamily: "Special Elite",
+                fontSize: "9px",
+                letterSpacing: "4px",
+                color: "rgba(200,110,15,0.7)",
+                marginTop: "4px",
+              }}
+            >
+              {zoomedProduct.subtitle}
+            </p>
+          </div>
+
+          {/* Zoomed image */}
+          <img
+            src={zoomedProduct.images[activeImage] || zoomedProduct.images[0]}
+            alt={zoomedProduct.name}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "90vw",
+              maxHeight: "80vh",
+              objectFit: "contain",
+
+              filter: "brightness(1.3) contrast(1.1) saturate(1.1)",
+              borderRadius: "4px",
+              animation: "zoomIn 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+            }}
+          />
+
+          {/* Hint */}
+          <p
+            style={{
+              position: "absolute",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily: "Special Elite",
+              fontSize: "8px",
+              letterSpacing: "4px",
+              color: "rgba(245,240,232,0.2)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            CLICK ANYWHERE TO CLOSE · ESC
+          </p>
+
+          <style>{`
+            @keyframes zoomIn {
+              from { transform: scale(0.7); opacity: 0; }
+              to   { transform: scale(1);   opacity: 1; }
+            }
+          `}</style>
         </div>
       )}
     </div>
