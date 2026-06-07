@@ -143,17 +143,293 @@ const VIEW_LABELS = ["FRONT", "BACK", "DETAIL", "LIFESTYLE"];
 const ARC_ANGLES = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
 const ARC_Y_OFFSET = [28, 16, 8, 3, 0, 3, 8, 16, 28];
 
+// ── CARD BACK FACE (shared design) ──
+function CardBack({ size = "tarot" }) {
+  const isTarot = size === "tarot";
+  const inset1 = isTarot ? "6px" : "8px";
+  const inset2 = isTarot ? "10px" : "13px";
+  const cornerSize = isTarot ? "12px" : "14px";
+  const cornerPos = isTarot ? "top-2 left-2" : "top-3 left-3";
+  const corners = isTarot
+    ? ["top-2 left-2", "top-2 right-2", "bottom-2 left-2", "bottom-2 right-2"]
+    : ["top-3 left-3", "top-3 right-3", "bottom-3 left-3", "bottom-3 right-3"];
+  const mascotSize = isTarot ? "60%" : "80px";
+  const fontSize = isTarot ? "clamp(6px, 0.8vw, 8px)" : "10px";
+  const borderRadius = isTarot ? "8px" : "12px";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
+        borderRadius,
+        background:
+          "linear-gradient(145deg, #2a1a0f 0%, #1a0f08 50%, #2a1a0f 100%)",
+        border: "1px solid rgba(200,110,15,0.4)",
+        overflow: "hidden",
+        boxShadow:
+          "0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(200,110,15,0.15)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: inset1,
+          border: "1px solid rgba(200,110,15,0.25)",
+          borderRadius: "4px",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: inset2,
+          border: "1px solid rgba(200,110,15,0.12)",
+          borderRadius: "2px",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `repeating-linear-gradient(45deg, rgba(200,110,15,0.05) 0px, rgba(200,110,15,0.05) 1px, transparent 1px, transparent 12px)`,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+        }}
+      >
+        <img
+          src="/mascot.png"
+          alt="Villain Society"
+          style={{
+            width: mascotSize,
+            height: mascotSize,
+            objectFit: "contain",
+            opacity: 0.55,
+            filter: "sepia(0.8) saturate(0.6) brightness(1.1)",
+          }}
+        />
+        <p
+          style={{
+            fontFamily: "Metal Mania",
+            fontSize,
+            letterSpacing: "2px",
+            color: "rgba(200,110,15,0.65)",
+            textAlign: "center",
+            lineHeight: 1.4,
+          }}
+        >
+          VILLAIN
+          <br />
+          SOCIETY
+        </p>
+      </div>
+      {corners.map((pos, i) => (
+        <div
+          key={i}
+          className={`absolute ${pos}`}
+          style={{
+            width: cornerSize,
+            height: cornerSize,
+            border: "1px solid rgba(200,110,15,0.4)",
+            borderRadius: "2px",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── CARD FRONT FACE (shared design) ──
+function CardFront({ product, size = "tarot", showClickHint = false }) {
+  const isTarot = size === "tarot";
+  const borderRadius = isTarot ? "8px" : "12px";
+  const romanSize = isTarot ? "clamp(8px, 1vw, 11px)" : "14px";
+  const nameSize = isTarot ? "clamp(5px, 0.7vw, 7px)" : "10px";
+  const cornerSize = isTarot ? "10px" : "14px";
+  const cornerOffset = isTarot ? "4px" : "6px";
+  const padding = isTarot ? "6px" : "8px";
+  const bottomPad = isTarot ? "20px 8px 8px" : "28px 12px 10px";
+  const corners = [
+    {
+      top: cornerOffset,
+      left: cornerOffset,
+      borderTop: `1px solid rgba(200,110,15,0.6)`,
+      borderLeft: `1px solid rgba(200,110,15,0.6)`,
+    },
+    {
+      top: cornerOffset,
+      right: cornerOffset,
+      borderTop: `1px solid rgba(200,110,15,0.6)`,
+      borderRight: `1px solid rgba(200,110,15,0.6)`,
+    },
+    {
+      bottom: cornerOffset,
+      left: cornerOffset,
+      borderBottom: `1px solid rgba(200,110,15,0.6)`,
+      borderLeft: `1px solid rgba(200,110,15,0.6)`,
+    },
+    {
+      bottom: cornerOffset,
+      right: cornerOffset,
+      borderBottom: `1px solid rgba(200,110,15,0.6)`,
+      borderRight: `1px solid rgba(200,110,15,0.6)`,
+    },
+  ];
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
+        transform: "rotateY(180deg)",
+        borderRadius,
+        background: "#0a0604",
+        border: "1px solid rgba(200,110,15,0.55)",
+        overflow: "hidden",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.8), 0 0 24px rgba(200,110,15,0.2)",
+      }}
+    >
+      {product.images && product.images[0] ? (
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            objectPosition: "center",
+            padding,
+            filter: "brightness(1.05)",
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Special Elite",
+              fontSize: "7px",
+              letterSpacing: "1px",
+              color: "rgba(200,110,15,0.5)",
+              textAlign: "center",
+            }}
+          >
+            COMING
+            <br />
+            SOON
+          </p>
+        </div>
+      )}
+      <p
+        style={{
+          position: "absolute",
+          top: "6px",
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontFamily: "Metal Mania",
+          fontSize: romanSize,
+          letterSpacing: "3px",
+          color: "rgba(200,110,15,0.95)",
+          zIndex: 4,
+          textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+        }}
+      >
+        {product.roman}
+      </p>
+      {corners.map((s, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            width: cornerSize,
+            height: cornerSize,
+            zIndex: 4,
+            ...s,
+          }}
+        />
+      ))}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: bottomPad,
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)",
+          zIndex: 4,
+          textAlign: "center",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "Metal Mania",
+            fontSize: nameSize,
+            letterSpacing: "1px",
+            color: "rgba(245,240,232,0.95)",
+            lineHeight: 1.2,
+            marginBottom: "2px",
+          }}
+        >
+          {product.name}
+        </p>
+        <p
+          style={{
+            fontFamily: "Special Elite",
+            fontSize: isTarot ? "clamp(4px, 0.55vw, 6px)" : "7px",
+            letterSpacing: "2px",
+            color: "rgba(200,110,15,0.75)",
+          }}
+        >
+          {showClickHint ? "TAP TO VIEW" : product.subtitle}
+        </p>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          background:
+            "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
+          zIndex: 5,
+        }}
+      />
+    </div>
+  );
+}
+
 // ── DESKTOP TAROT CARD ──
 function TarotCard({ product, index, isFlipped, onFirstClick, onSecondClick }) {
   const angle = ARC_ANGLES[index] ?? 0;
   const yOffset = ARC_Y_OFFSET[index] ?? 0;
 
   const handleClick = () => {
-    if (isFlipped) {
-      onSecondClick(product);
-    } else {
-      onFirstClick(product.id);
-    }
+    if (isFlipped) onSecondClick(product);
+    else onFirstClick(product.id);
   };
 
   return (
@@ -191,274 +467,14 @@ function TarotCard({ product, index, isFlipped, onFirstClick, onSecondClick }) {
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* CARD BACK */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            borderRadius: "8px",
-            background:
-              "linear-gradient(145deg, #2a1a0f 0%, #1a0f08 50%, #2a1a0f 100%)",
-            border: "1px solid rgba(200,110,15,0.4)",
-            overflow: "hidden",
-            boxShadow:
-              "0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(200,110,15,0.15)",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              inset: "6px",
-              border: "1px solid rgba(200,110,15,0.25)",
-              borderRadius: "4px",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: "10px",
-              border: "1px solid rgba(200,110,15,0.12)",
-              borderRadius: "2px",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `repeating-linear-gradient(45deg, rgba(200,110,15,0.05) 0px, rgba(200,110,15,0.05) 1px, transparent 1px, transparent 12px)`,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-            }}
-          >
-            <img
-              src="/mascot.png"
-              alt="Villain Society"
-              style={{
-                width: "60%",
-                height: "60%",
-                objectFit: "contain",
-                opacity: 0.55,
-                filter: "sepia(0.8) saturate(0.6) brightness(1.1)",
-              }}
-            />
-            <p
-              style={{
-                fontFamily: "Metal Mania",
-                fontSize: "clamp(6px, 0.8vw, 8px)",
-                letterSpacing: "2px",
-                color: "rgba(200,110,15,0.65)",
-                textAlign: "center",
-                lineHeight: 1.4,
-              }}
-            >
-              VILLAIN
-              <br />
-              SOCIETY
-            </p>
-          </div>
-          {[
-            "top-2 left-2",
-            "top-2 right-2",
-            "bottom-2 left-2",
-            "bottom-2 right-2",
-          ].map((pos, i) => (
-            <div
-              key={i}
-              className={`absolute ${pos}`}
-              style={{
-                width: "12px",
-                height: "12px",
-                border: "1px solid rgba(200,110,15,0.4)",
-                borderRadius: "2px",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* CARD FRONT */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-            borderRadius: "8px",
-            background: "#0a0604",
-            border: "1px solid rgba(200,110,15,0.55)",
-            overflow: "hidden",
-            boxShadow:
-              "0 8px 32px rgba(0,0,0,0.8), 0 0 24px rgba(200,110,15,0.2)",
-          }}
-        >
-          {/* Full-bleed shirt image */}
-          {product.images && product.images[0] ? (
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                objectPosition: "center",
-                padding: "6px",
-                filter: "brightness(1.05)",
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "Special Elite",
-                  fontSize: "6px",
-                  letterSpacing: "1px",
-                  color: "rgba(200,110,15,0.5)",
-                  textAlign: "center",
-                }}
-              >
-                COMING
-                <br />
-                SOON
-              </p>
-            </div>
-          )}
-
-          {/* Roman numeral top-left */}
-          <p
-            style={{
-              position: "absolute",
-              top: "6px",
-              left: "0",
-              right: "0",
-              textAlign: "center",
-              fontFamily: "Metal Mania",
-              fontSize: "clamp(8px, 1vw, 11px)",
-              letterSpacing: "3px",
-              color: "rgba(200,110,15,0.95)",
-              zIndex: 4,
-              textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-            }}
-          >
-            {product.roman}
-          </p>
-
-          {/* Corner brackets */}
-          {[
-            {
-              top: "4px",
-              left: "4px",
-              borderTop: "1px solid rgba(200,110,15,0.6)",
-              borderLeft: "1px solid rgba(200,110,15,0.6)",
-            },
-            {
-              top: "4px",
-              right: "4px",
-              borderTop: "1px solid rgba(200,110,15,0.6)",
-              borderRight: "1px solid rgba(200,110,15,0.6)",
-            },
-            {
-              bottom: "4px",
-              left: "4px",
-              borderBottom: "1px solid rgba(200,110,15,0.6)",
-              borderLeft: "1px solid rgba(200,110,15,0.6)",
-            },
-            {
-              bottom: "4px",
-              right: "4px",
-              borderBottom: "1px solid rgba(200,110,15,0.6)",
-              borderRight: "1px solid rgba(200,110,15,0.6)",
-            },
-          ].map((s, i) => (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                width: "10px",
-                height: "10px",
-                zIndex: 4,
-                ...s,
-              }}
-            />
-          ))}
-
-          {/* Bottom gradient + name */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: "20px 8px 8px",
-              background:
-                "linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)",
-              zIndex: 4,
-              textAlign: "center",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: "Metal Mania",
-                fontSize: "clamp(5px, 0.7vw, 7px)",
-                letterSpacing: "1px",
-                color: "rgba(245,240,232,0.95)",
-                lineHeight: 1.2,
-                marginBottom: "2px",
-              }}
-            >
-              {product.name}
-            </p>
-            <p
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "clamp(4px, 0.55vw, 6px)",
-                letterSpacing: "2px",
-                color: "rgba(200,110,15,0.7)",
-              }}
-            >
-              CLICK TO VIEW
-            </p>
-          </div>
-
-          {/* Top gold line */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "2px",
-              background:
-                "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
-            }}
-          />
-        </div>
+        <CardBack size="tarot" />
+        <CardFront product={product} size="tarot" showClickHint={isFlipped} />
       </div>
     </div>
   );
 }
 
-// ── STACK CARD FACE ──
+// ── MOBILE STACK CARD ──
 function StackCard({ product, isFlipped }) {
   return (
     <div
@@ -472,275 +488,14 @@ function StackCard({ product, isFlipped }) {
         borderRadius: "12px",
       }}
     >
-      {/* Back */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
-          borderRadius: "12px",
-          background:
-            "linear-gradient(145deg, #2a1a0f 0%, #1a0f08 50%, #2a1a0f 100%)",
-          border: "1px solid rgba(200,110,15,0.4)",
-          overflow: "hidden",
-          boxShadow:
-            "0 12px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(200,110,15,0.15)",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: "8px",
-            border: "1px solid rgba(200,110,15,0.25)",
-            borderRadius: "6px",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: "13px",
-            border: "1px solid rgba(200,110,15,0.12)",
-            borderRadius: "4px",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `repeating-linear-gradient(45deg, rgba(200,110,15,0.05) 0px, rgba(200,110,15,0.05) 1px, transparent 1px, transparent 14px)`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-          }}
-        >
-          <img
-            src="/mascot.png"
-            alt="Villain Society"
-            style={{
-              width: "80px",
-              height: "80px",
-              objectFit: "contain",
-              opacity: 0.55,
-              filter: "sepia(0.8) saturate(0.6) brightness(1.1)",
-            }}
-          />
-          <p
-            style={{
-              fontFamily: "Metal Mania",
-              fontSize: "10px",
-              letterSpacing: "3px",
-              color: "rgba(200,110,15,0.65)",
-              textAlign: "center",
-              lineHeight: 1.5,
-            }}
-          >
-            VILLAIN
-            <br />
-            SOCIETY
-          </p>
-        </div>
-        {[
-          "top-3 left-3",
-          "top-3 right-3",
-          "bottom-3 left-3",
-          "bottom-3 right-3",
-        ].map((pos, i) => (
-          <div
-            key={i}
-            className={`absolute ${pos}`}
-            style={{
-              width: "14px",
-              height: "14px",
-              border: "1px solid rgba(200,110,15,0.4)",
-              borderRadius: "3px",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Front */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
-          transform: "rotateY(180deg)",
-          borderRadius: "12px",
-          background: "#0a0604",
-          border: "1px solid rgba(200,110,15,0.55)",
-          overflow: "hidden",
-          boxShadow:
-            "0 12px 40px rgba(0,0,0,0.8), 0 0 30px rgba(200,110,15,0.2)",
-        }}
-      >
-        {/* Full-bleed shirt image */}
-        {product.images && product.images[0] ? (
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              objectPosition: "center",
-              padding: "8px",
-              filter: "brightness(1.05)",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "7px",
-                letterSpacing: "1px",
-                color: "rgba(200,110,15,0.5)",
-                textAlign: "center",
-              }}
-            >
-              COMING
-              <br />
-              SOON
-            </p>
-          </div>
-        )}
-
-        {/* Roman numeral */}
-        <p
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            fontFamily: "Metal Mania",
-            fontSize: "14px",
-            letterSpacing: "4px",
-            color: "rgba(200,110,15,0.95)",
-            zIndex: 4,
-            textShadow: "0 1px 8px rgba(0,0,0,0.9)",
-          }}
-        >
-          {product.roman}
-        </p>
-
-        {/* Corner brackets */}
-        {[
-          {
-            top: "6px",
-            left: "6px",
-            borderTop: "1px solid rgba(200,110,15,0.6)",
-            borderLeft: "1px solid rgba(200,110,15,0.6)",
-          },
-          {
-            top: "6px",
-            right: "6px",
-            borderTop: "1px solid rgba(200,110,15,0.6)",
-            borderRight: "1px solid rgba(200,110,15,0.6)",
-          },
-          {
-            bottom: "6px",
-            left: "6px",
-            borderBottom: "1px solid rgba(200,110,15,0.6)",
-            borderLeft: "1px solid rgba(200,110,15,0.6)",
-          },
-          {
-            bottom: "6px",
-            right: "6px",
-            borderBottom: "1px solid rgba(200,110,15,0.6)",
-            borderRight: "1px solid rgba(200,110,15,0.6)",
-          },
-        ].map((s, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              width: "14px",
-              height: "14px",
-              zIndex: 4,
-              ...s,
-            }}
-          />
-        ))}
-
-        {/* Bottom gradient + name */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: "28px 12px 10px",
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%)",
-            zIndex: 4,
-            textAlign: "center",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Metal Mania",
-              fontSize: "10px",
-              letterSpacing: "1px",
-              color: "rgba(245,240,232,0.95)",
-              lineHeight: 1.2,
-              marginBottom: "3px",
-            }}
-          >
-            {product.name}
-          </p>
-          <p
-            style={{
-              fontFamily: "Special Elite",
-              fontSize: "7px",
-              letterSpacing: "3px",
-              color: "rgba(200,110,15,0.85)",
-            }}
-          >
-            {product.subtitle}
-          </p>
-        </div>
-
-        {/* Bottom gold line */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "2px",
-            background:
-              "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
-            zIndex: 5,
-          }}
-        />
-      </div>
+      <CardBack size="stack" />
+      <CardFront product={product} size="stack" showClickHint={false} />
     </div>
   );
 }
 
 // ── MOBILE STACKED DECK ──
-function MobileStack({ products, onOpenModal, onZoom }) {
+function MobileStack({ products, onOpenModal }) {
   const [stack, setStack] = useState([...products].reverse());
   const [isFlipped, setIsFlipped] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -761,8 +516,7 @@ function MobileStack({ products, onOpenModal, onZoom }) {
 
   const handleTouchMove = (e) => {
     if (!isDragging) return;
-    const diff = e.touches[0].clientX - startXRef.current;
-    setDragX(diff);
+    setDragX(e.touches[0].clientX - startXRef.current);
   };
 
   const handleTouchEnd = () => {
@@ -774,10 +528,10 @@ function MobileStack({ products, onOpenModal, onZoom }) {
       setIsFlipped(false);
       setTimeout(() => {
         setStack((prev) => {
-          const newStack = [...prev];
-          newStack.pop();
-          if (newStack.length === 0) setIsEmpty(true);
-          return newStack;
+          const next = [...prev];
+          next.pop();
+          if (next.length === 0) setIsEmpty(true);
+          return next;
         });
         setDragX(0);
         setIsSwiping(false);
@@ -788,13 +542,13 @@ function MobileStack({ products, onOpenModal, onZoom }) {
     }
   };
 
+  // First tap flips, second tap opens modal
   const handleTap = () => {
     if (Math.abs(dragX) > 5) return;
     if (!isFlipped) {
       setIsFlipped(true);
-      setTimeout(() => {
-        onOpenModal(topCard);
-      }, 600);
+    } else {
+      onOpenModal(topCard);
     }
   };
 
@@ -832,7 +586,7 @@ function MobileStack({ products, onOpenModal, onZoom }) {
         <p
           style={{
             fontFamily: "Special Elite",
-            fontSize: "10px",
+            fontSize: "12px",
             letterSpacing: "4px",
             color: "rgba(245,240,232,0.25)",
             textAlign: "center",
@@ -844,15 +598,15 @@ function MobileStack({ products, onOpenModal, onZoom }) {
           onClick={handleReset}
           style={{
             fontFamily: "Special Elite",
-            fontSize: "9px",
+            fontSize: "14px",
             letterSpacing: "4px",
             color: "rgba(200,110,15,0.6)",
             background: "none",
             border: "1px solid rgba(200,110,15,0.3)",
-            padding: "10px 20px",
+            padding: "12px 24px",
             cursor: "pointer",
-            transition: "all 0.2s ease",
             borderRadius: "8px",
+            minHeight: "44px",
           }}
         >
           RESET DECK
@@ -934,14 +688,14 @@ function MobileStack({ products, onOpenModal, onZoom }) {
                   left: "16px",
                   background: "rgba(200,110,15,0.9)",
                   borderRadius: "6px",
-                  padding: "4px 10px",
+                  padding: "6px 12px",
                   zIndex: 20,
                 }}
               >
                 <p
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "9px",
+                    fontSize: "11px",
                     letterSpacing: "3px",
                     color: "rgba(5,3,1,0.9)",
                   }}
@@ -958,14 +712,14 @@ function MobileStack({ products, onOpenModal, onZoom }) {
                   right: "16px",
                   background: "rgba(200,110,15,0.9)",
                   borderRadius: "6px",
-                  padding: "4px 10px",
+                  padding: "6px 12px",
                   zIndex: 20,
                 }}
               >
                 <p
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "9px",
+                    fontSize: "11px",
                     letterSpacing: "3px",
                     color: "rgba(5,3,1,0.9)",
                   }}
@@ -980,7 +734,7 @@ function MobileStack({ products, onOpenModal, onZoom }) {
       <p
         style={{
           fontFamily: "Special Elite",
-          fontSize: "8px",
+          fontSize: "11px",
           letterSpacing: "4px",
           color: "rgba(245,240,232,0.2)",
           marginBottom: "8px",
@@ -991,12 +745,12 @@ function MobileStack({ products, onOpenModal, onZoom }) {
       <p
         style={{
           fontFamily: "Special Elite",
-          fontSize: "8px",
+          fontSize: "11px",
           letterSpacing: "3px",
-          color: "rgba(200,110,15,0.3)",
+          color: "rgba(200,110,15,0.4)",
         }}
       >
-        {isFlipped ? "OPENING..." : "SWIPE · TAP TO REVEAL"}
+        {isFlipped ? "TAP AGAIN TO VIEW" : "SWIPE · TAP TO FLIP"}
       </p>
       <div style={{ display: "flex", gap: "5px", marginTop: "12px" }}>
         {products.map((_, i) => {
@@ -1022,6 +776,7 @@ function MobileStack({ products, onOpenModal, onZoom }) {
   );
 }
 
+// ── MAIN COLLECTIONS PAGE ──
 function Collections() {
   const [flippedId, setFlippedId] = useState(null);
   const [zoomedProduct, setZoomedProduct] = useState(null);
@@ -1042,7 +797,10 @@ function Collections() {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") setZoomedProduct(null);
+      if (e.key === "Escape") {
+        setZoomedProduct(null);
+        setSelected(null);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -1064,6 +822,7 @@ function Collections() {
     setShowModel(false);
     setWaitlistStatus("idle");
     setWaitlistEmail("");
+    setFlippedId(null);
   };
 
   const prevImage = () => {
@@ -1103,20 +862,29 @@ function Collections() {
     }
   };
 
-  // Which image src to show in the modal
   const currentImageSrc = showModel
     ? selected?.modelImage
     : selected?.images?.[activeImage];
-
   const hasProductImages = selected?.images && selected.images.length > 0;
   const hasModelImage = !!selected?.modelImage;
+
+  // Gold separator
+  const Sep = () => (
+    <div
+      style={{
+        width: "100%",
+        height: "1px",
+        background: "rgba(200,110,15,0.12)",
+      }}
+    />
+  );
 
   return (
     <div
       className="relative min-h-screen w-full overflow-hidden flex flex-col"
       style={{ background: "#0a0604" }}
     >
-      {/* Video background */}
+      {/* Video bg */}
       <video
         autoPlay
         muted
@@ -1127,11 +895,7 @@ function Collections() {
       >
         <source src="/collections-bg.mp4" type="video/mp4" />
       </video>
-
-      {/* Dark overlay */}
       <div className="fixed inset-0 bg-black/50 pointer-events-none" />
-
-      {/* Grain */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -1152,7 +916,7 @@ function Collections() {
           <p
             style={{
               fontFamily: "Special Elite",
-              fontSize: "9px",
+              fontSize: "11px",
               letterSpacing: "8px",
               color: "rgba(200,110,15,0.7)",
               marginBottom: "8px",
@@ -1183,13 +947,13 @@ function Collections() {
           <p
             style={{
               fontFamily: "Special Elite",
-              fontSize: "9px",
+              fontSize: "11px",
               letterSpacing: "4px",
               color: "rgba(245,240,232,0.3)",
             }}
           >
             {isMobile
-              ? "SWIPE · TAP TO REVEAL · AUG 2026"
+              ? "SWIPE · TAP TO FLIP · TAP AGAIN TO VIEW"
               : "CLICK TO FLIP · CLICK AGAIN TO VIEW · AUG 2026"}
           </p>
         </div>
@@ -1217,20 +981,13 @@ function Collections() {
                   onFirstClick={(id) =>
                     setFlippedId((prev) => (prev === id ? null : id))
                   }
-                  onSecondClick={(product) => {
-                    openModal(product);
-                  }}
+                  onSecondClick={(p) => openModal(p)}
                 />
               ))}
             </div>
           )}
-
           {isMobile && (
-            <MobileStack
-              products={products}
-              onOpenModal={openModal}
-              onZoom={setZoomedProduct}
-            />
+            <MobileStack products={products} onOpenModal={openModal} />
           )}
         </div>
       </div>
@@ -1263,7 +1020,7 @@ function Collections() {
                 <p
                   style={{
                     fontFamily: "Metal Mania",
-                    fontSize: "11px",
+                    fontSize: "13px",
                     letterSpacing: "3px",
                     color: "rgba(200,110,15,0.8)",
                   }}
@@ -1273,7 +1030,7 @@ function Collections() {
                 <p
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "9px",
+                    fontSize: "11px",
                     letterSpacing: "4px",
                     color: "rgba(200,110,15,0.55)",
                   }}
@@ -1284,13 +1041,13 @@ function Collections() {
                   style={{
                     border: "1px solid rgba(200,110,15,0.3)",
                     borderRadius: "999px",
-                    padding: "2px 10px",
+                    padding: "3px 12px",
                   }}
                 >
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "7px",
+                      fontSize: "10px",
                       letterSpacing: "2px",
                       color: "rgba(200,110,15,0.65)",
                     }}
@@ -1306,14 +1063,16 @@ function Collections() {
                   border: "1px solid rgba(245,240,232,0.12)",
                   color: "rgba(245,240,232,0.4)",
                   borderRadius: "50%",
-                  width: "28px",
-                  height: "28px",
+                  width: "36px",
+                  height: "36px",
+                  minWidth: "36px",
                   cursor: "pointer",
-                  fontSize: "12px",
-                  transition: "all 0.2s ease",
+                  fontSize: "14px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  WebkitTapHighlightColor: "transparent",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "rgba(200,110,15,0.5)";
@@ -1329,10 +1088,10 @@ function Collections() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2">
-              {/* ── IMAGE PANEL ── */}
+              {/* Image panel */}
               <div
                 style={{
-                  height: isMobile ? "280px" : "460px",
+                  height: isMobile ? "300px" : "460px",
                   background: "#1a1208",
                   borderRight: isMobile
                     ? "none"
@@ -1362,7 +1121,7 @@ function Collections() {
                         objectFit: showModel ? "cover" : "contain",
                         padding: showModel ? "0" : "16px",
                         zIndex: 2,
-                        filter: showModel ? "none" : "brightness(1.05)",
+                        filter: "brightness(1.05)",
                         transition: "opacity 0.3s ease",
                         cursor: showModel ? "default" : "zoom-in",
                         WebkitTapHighlightColor: "transparent",
@@ -1378,6 +1137,7 @@ function Collections() {
                         }}
                       />
                     )}
+                    {/* Tap to zoom hint — mobile only */}
                     {isMobile && !showModel && (
                       <div
                         style={{
@@ -1389,14 +1149,14 @@ function Collections() {
                           background: "rgba(0,0,0,0.6)",
                           border: "1px solid rgba(200,110,15,0.25)",
                           borderRadius: "999px",
-                          padding: "4px 14px",
+                          padding: "5px 14px",
                           pointerEvents: "none",
                         }}
                       >
                         <p
                           style={{
                             fontFamily: "Special Elite",
-                            fontSize: "7px",
+                            fontSize: "10px",
                             letterSpacing: "3px",
                             color: "rgba(200,110,15,0.7)",
                             whiteSpace: "nowrap",
@@ -1422,7 +1182,7 @@ function Collections() {
                     <p
                       style={{
                         fontFamily: "Special Elite",
-                        fontSize: "8px",
+                        fontSize: "11px",
                         letterSpacing: "3px",
                         color: "rgba(200,110,15,0.3)",
                         marginTop: "8px",
@@ -1459,7 +1219,7 @@ function Collections() {
                   />
                 ))}
 
-                {/* ── PRODUCT / MODEL TOGGLE ── */}
+                {/* Product / Model toggle */}
                 {(hasProductImages || hasModelImage) && (
                   <div
                     style={{
@@ -1484,9 +1244,9 @@ function Collections() {
                         }}
                         style={{
                           fontFamily: "Special Elite",
-                          fontSize: "8px",
+                          fontSize: "11px",
                           letterSpacing: "2px",
-                          padding: "5px 12px",
+                          padding: "7px 14px",
                           border: "none",
                           cursor: "pointer",
                           transition: "all 0.2s ease",
@@ -1496,6 +1256,8 @@ function Collections() {
                           color: !showModel
                             ? "rgba(5,3,1,0.95)"
                             : "rgba(200,110,15,0.55)",
+                          minHeight: "36px",
+                          WebkitTapHighlightColor: "transparent",
                         }}
                       >
                         PRODUCT
@@ -1506,9 +1268,9 @@ function Collections() {
                         onClick={() => setShowModel(true)}
                         style={{
                           fontFamily: "Special Elite",
-                          fontSize: "8px",
+                          fontSize: "11px",
                           letterSpacing: "2px",
-                          padding: "5px 12px",
+                          padding: "7px 14px",
                           border: "none",
                           cursor: "pointer",
                           transition: "all 0.2s ease",
@@ -1518,6 +1280,8 @@ function Collections() {
                           color: showModel
                             ? "rgba(5,3,1,0.95)"
                             : "rgba(200,110,15,0.55)",
+                          minHeight: "36px",
+                          WebkitTapHighlightColor: "transparent",
                         }}
                       >
                         MODEL
@@ -1526,7 +1290,7 @@ function Collections() {
                   </div>
                 )}
 
-                {/* Prev/Next — only in product view with multiple images */}
+                {/* Prev/Next arrows */}
                 {!showModel &&
                   selected.images &&
                   selected.images.length > 1 && (
@@ -1542,15 +1306,16 @@ function Collections() {
                           background: "rgba(0,0,0,0.55)",
                           border: "1px solid rgba(200,110,15,0.3)",
                           borderRadius: "50%",
-                          width: "36px",
-                          height: "36px",
+                          width: "40px",
+                          height: "40px",
                           cursor: "pointer",
                           color: "rgba(200,110,15,0.8)",
-                          fontSize: "16px",
+                          fontSize: "18px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           backdropFilter: "blur(8px)",
+                          WebkitTapHighlightColor: "transparent",
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor =
@@ -1577,15 +1342,16 @@ function Collections() {
                           background: "rgba(0,0,0,0.55)",
                           border: "1px solid rgba(200,110,15,0.3)",
                           borderRadius: "50%",
-                          width: "36px",
-                          height: "36px",
+                          width: "40px",
+                          height: "40px",
                           cursor: "pointer",
                           color: "rgba(200,110,15,0.8)",
-                          fontSize: "16px",
+                          fontSize: "18px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           backdropFilter: "blur(8px)",
+                          WebkitTapHighlightColor: "transparent",
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor =
@@ -1604,7 +1370,7 @@ function Collections() {
                     </>
                   )}
 
-                {/* Dot indicators — product view only */}
+                {/* Dot indicators */}
                 {!showModel &&
                   selected.images &&
                   selected.images.length > 1 && (
@@ -1624,7 +1390,7 @@ function Collections() {
                       <p
                         style={{
                           fontFamily: "Special Elite",
-                          fontSize: "8px",
+                          fontSize: "10px",
                           letterSpacing: "4px",
                           color: "rgba(200,110,15,0.65)",
                         }}
@@ -1648,6 +1414,7 @@ function Collections() {
                                   ? "rgba(200,110,15,0.9)"
                                   : "rgba(245,240,232,0.25)",
                               transition: "all 0.3s ease",
+                              minHeight: "unset",
                             }}
                           />
                         ))}
@@ -1656,13 +1423,13 @@ function Collections() {
                   )}
               </div>
 
-              {/* ── DETAILS PANEL ── */}
+              {/* Details panel */}
               <div className="flex flex-col gap-5 p-6 md:p-8">
                 <div>
                   <h2
                     style={{
                       fontFamily: "Metal Mania",
-                      fontSize: "clamp(16px, 2.5vw, 22px)",
+                      fontSize: "clamp(18px, 2.5vw, 24px)",
                       letterSpacing: "0.12em",
                       color: "rgba(245,240,232,0.95)",
                       marginBottom: "8px",
@@ -1674,7 +1441,7 @@ function Collections() {
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "12px",
+                      fontSize: "14px",
                       lineHeight: 1.7,
                       color: "rgba(245,240,232,0.45)",
                     }}
@@ -1682,20 +1449,12 @@ function Collections() {
                     {selected.description}
                   </p>
                 </div>
-
-                <div
-                  style={{
-                    width: "100%",
-                    height: "1px",
-                    background: "rgba(200,110,15,0.12)",
-                  }}
-                />
-
+                <Sep />
                 <div>
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "8px",
+                      fontSize: "11px",
                       letterSpacing: "4px",
                       marginBottom: "8px",
                       color: "rgba(200,110,15,0.65)",
@@ -1706,7 +1465,7 @@ function Collections() {
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "11px",
+                      fontSize: "13px",
                       lineHeight: 1.8,
                       color: "rgba(245,240,232,0.35)",
                     }}
@@ -1714,14 +1473,13 @@ function Collections() {
                     {selected.details}
                   </p>
                 </div>
-
                 <div>
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "8px",
+                      fontSize: "11px",
                       letterSpacing: "4px",
-                      marginBottom: "10px",
+                      marginBottom: "12px",
                       color: "rgba(200,110,15,0.65)",
                     }}
                   >
@@ -1734,11 +1492,12 @@ function Collections() {
                         onClick={() => setSelectedSize(size)}
                         style={{
                           fontFamily: "Special Elite",
-                          fontSize: "10px",
+                          fontSize: "13px",
                           letterSpacing: "0.1em",
-                          padding: "6px 10px",
+                          padding: "10px 14px",
                           borderRadius: "8px",
                           cursor: "pointer",
+                          minHeight: "44px",
                           border: `1px solid ${selectedSize === size ? "rgba(200,110,15,0.7)" : "rgba(245,240,232,0.1)"}`,
                           color:
                             selectedSize === size
@@ -1749,6 +1508,7 @@ function Collections() {
                               ? "rgba(180,80,5,0.15)"
                               : "transparent",
                           transition: "all 0.2s ease",
+                          WebkitTapHighlightColor: "transparent",
                         }}
                       >
                         {size}
@@ -1756,20 +1516,12 @@ function Collections() {
                     ))}
                   </div>
                 </div>
-
-                <div
-                  style={{
-                    width: "100%",
-                    height: "1px",
-                    background: "rgba(200,110,15,0.12)",
-                  }}
-                />
-
+                <Sep />
                 <div className="flex items-center justify-between">
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "10px",
+                      fontSize: "13px",
                       letterSpacing: "4px",
                       color: "rgba(200,110,15,0.65)",
                     }}
@@ -1779,7 +1531,7 @@ function Collections() {
                   <p
                     style={{
                       fontFamily: "Special Elite",
-                      fontSize: "9px",
+                      fontSize: "11px",
                       letterSpacing: "2px",
                       color: "rgba(245,240,232,0.2)",
                     }}
@@ -1793,7 +1545,7 @@ function Collections() {
                     <p
                       style={{
                         fontFamily: "Special Elite",
-                        fontSize: "8px",
+                        fontSize: "11px",
                         letterSpacing: "4px",
                         marginBottom: "8px",
                         color: "rgba(200,110,15,0.65)",
@@ -1811,10 +1563,11 @@ function Collections() {
                         background: "transparent",
                         border: "none",
                         borderBottom: "1px solid rgba(200,110,15,0.2)",
-                        padding: "8px 0",
+                        padding: "10px 0",
                         color: "rgba(245,240,232,0.85)",
                         fontFamily: "Special Elite",
-                        fontSize: "12px",
+                        // 16px prevents iOS auto-zoom
+                        fontSize: "16px",
                         letterSpacing: "2px",
                         outline: "none",
                         transition: "border-color 0.3s ease",
@@ -1838,12 +1591,13 @@ function Collections() {
                   }
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "11px",
+                    fontSize: "14px",
                     letterSpacing: "4px",
                     width: "100%",
-                    padding: "13px",
+                    padding: "16px",
                     borderRadius: "12px",
                     border: "none",
+                    minHeight: "52px",
                     cursor: waitlistStatus === "sent" ? "default" : "pointer",
                     background:
                       waitlistStatus === "sent"
@@ -1853,6 +1607,7 @@ function Collections() {
                           : "rgba(200,95,8,0.9)",
                     color: "rgba(5,3,1,0.95)",
                     transition: "all 0.2s ease",
+                    WebkitTapHighlightColor: "transparent",
                   }}
                   onMouseEnter={(e) => {
                     if (waitlistStatus === "idle") {
@@ -1879,7 +1634,7 @@ function Collections() {
                 <p
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "8px",
+                    fontSize: "10px",
                     letterSpacing: "0.2em",
                     textAlign: "center",
                     color: "rgba(245,240,232,0.12)",
@@ -1912,7 +1667,6 @@ function Collections() {
             touchAction: "none",
           }}
         >
-          {/* Close button */}
           <button
             onClick={() => setZoomedProduct(null)}
             style={{
@@ -1923,35 +1677,26 @@ function Collections() {
               border: "1px solid rgba(200,110,15,0.4)",
               color: "rgba(200,110,15,0.8)",
               borderRadius: "50%",
-              width: "40px",
-              height: "40px",
+              width: "44px",
+              height: "44px",
               cursor: "pointer",
-              fontSize: "16px",
+              fontSize: "18px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               zIndex: 10,
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(200,110,15,0.15)";
-              e.currentTarget.style.borderColor = "rgba(200,110,15,0.9)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "none";
-              e.currentTarget.style.borderColor = "rgba(200,110,15,0.4)";
+              WebkitTapHighlightColor: "transparent",
             }}
           >
             ✕
           </button>
 
-          {/* Product name */}
           <div
             style={{
               position: "absolute",
               top: "16px",
               left: "16px",
-              right: "56px",
+              right: "60px",
               textAlign: "center",
               zIndex: 10,
             }}
@@ -1959,7 +1704,7 @@ function Collections() {
             <p
               style={{
                 fontFamily: "Metal Mania",
-                fontSize: "clamp(11px, 2vw, 18px)",
+                fontSize: "clamp(13px, 2vw, 20px)",
                 letterSpacing: "0.15em",
                 color: "rgba(245,240,232,0.9)",
                 textShadow: "0 2px 12px rgba(0,0,0,0.8)",
@@ -1970,7 +1715,7 @@ function Collections() {
             <p
               style={{
                 fontFamily: "Special Elite",
-                fontSize: "8px",
+                fontSize: "11px",
                 letterSpacing: "4px",
                 color: "rgba(200,110,15,0.7)",
                 marginTop: "3px",
@@ -1980,7 +1725,6 @@ function Collections() {
             </p>
           </div>
 
-          {/* Zoomed image */}
           <img
             src={zoomedProduct.images[activeImage] || zoomedProduct.images[0]}
             alt={zoomedProduct.name}
@@ -1999,7 +1743,6 @@ function Collections() {
             }}
           />
 
-          {/* Hint */}
           <p
             style={{
               position: "absolute",
@@ -2007,7 +1750,7 @@ function Collections() {
               left: "50%",
               transform: "translateX(-50%)",
               fontFamily: "Special Elite",
-              fontSize: "7px",
+              fontSize: "10px",
               letterSpacing: "3px",
               color: "rgba(245,240,232,0.2)",
               whiteSpace: "nowrap",
@@ -2018,12 +1761,7 @@ function Collections() {
               : "CLICK ANYWHERE TO CLOSE · ESC"}
           </p>
 
-          <style>{`
-            @keyframes zoomIn {
-              from { transform: scale(0.75); opacity: 0; }
-              to   { transform: scale(1);    opacity: 1; }
-            }
-          `}</style>
+          <style>{`@keyframes zoomIn { from { transform: scale(0.75); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
         </div>
       )}
     </div>
