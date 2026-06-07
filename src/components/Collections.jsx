@@ -144,9 +144,17 @@ const ARC_ANGLES = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
 const ARC_Y_OFFSET = [28, 16, 8, 3, 0, 3, 8, 16, 28];
 
 // ── DESKTOP TAROT CARD ──
-function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
+function TarotCard({ product, index, isFlipped, onFirstClick, onSecondClick }) {
   const angle = ARC_ANGLES[index] ?? 0;
   const yOffset = ARC_Y_OFFSET[index] ?? 0;
+
+  const handleClick = () => {
+    if (isFlipped) {
+      onSecondClick(product);
+    } else {
+      onFirstClick(product.id);
+    }
+  };
 
   return (
     <div
@@ -161,18 +169,16 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
         flexShrink: 0,
         zIndex: isFlipped ? 20 : 5,
       }}
-      onClick={() => onFlip(product)}
+      onClick={handleClick}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = `rotate(${angle}deg) translateY(${yOffset - 10}px)`;
         e.currentTarget.style.filter = "brightness(1.2)";
         e.currentTarget.style.zIndex = "20";
-        onHoverFlip(product.id);
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         e.currentTarget.style.filter = "brightness(1)";
-        e.currentTarget.style.zIndex = "5";
-        onHoverFlip(null);
+        e.currentTarget.style.zIndex = isFlipped ? "20" : "5";
       }}
     >
       <div
@@ -309,7 +315,7 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
                 objectFit: "contain",
                 objectPosition: "center",
                 padding: "6px",
-                filter: "brightness(1.25) contrast(1.05) saturate(1.05)",
+                filter: "brightness(1.05)",
               }}
             />
           ) : (
@@ -405,7 +411,7 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
               right: 0,
               padding: "20px 8px 8px",
               background:
-                "linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%)",
+                "linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)",
               zIndex: 4,
               textAlign: "center",
             }}
@@ -425,12 +431,12 @@ function TarotCard({ product, index, isFlipped, onFlip, onHoverFlip }) {
             <p
               style={{
                 fontFamily: "Special Elite",
-                fontSize: "clamp(5px, 0.6vw, 6px)",
+                fontSize: "clamp(4px, 0.55vw, 6px)",
                 letterSpacing: "2px",
-                color: "rgba(200,110,15,0.85)",
+                color: "rgba(200,110,15,0.7)",
               }}
             >
-              {product.subtitle}
+              CLICK TO VIEW
             </p>
           </div>
 
@@ -590,8 +596,7 @@ function StackCard({ product, isFlipped }) {
               objectFit: "contain",
               objectPosition: "center",
               padding: "8px",
-
-              filter: "brightness(1.25) contrast(1.05) saturate(1.05)",
+              filter: "brightness(1.05)",
             }}
           />
         ) : (
@@ -735,7 +740,7 @@ function StackCard({ product, isFlipped }) {
 }
 
 // ── MOBILE STACKED DECK ──
-function MobileStack({ products, onOpenModal }) {
+function MobileStack({ products, onOpenModal, onZoom }) {
   const [stack, setStack] = useState([...products].reverse());
   const [isFlipped, setIsFlipped] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -1018,7 +1023,7 @@ function MobileStack({ products, onOpenModal }) {
 }
 
 function Collections() {
-  const [hoveredId, setHoveredId] = useState(null);
+  const [flippedId, setFlippedId] = useState(null);
   const [zoomedProduct, setZoomedProduct] = useState(null);
   const [selected, setSelected] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -1185,7 +1190,7 @@ function Collections() {
           >
             {isMobile
               ? "SWIPE · TAP TO REVEAL · AUG 2026"
-              : "HOVER TO REVEAL · CLICK TO VIEW · AUG 2026"}
+              : "CLICK TO FLIP · CLICK AGAIN TO VIEW · AUG 2026"}
           </p>
         </div>
 
@@ -1208,16 +1213,24 @@ function Collections() {
                   key={product.id}
                   product={product}
                   index={index}
-                  isFlipped={hoveredId === product.id}
-                  onFlip={openModal}
-                  onHoverFlip={setHoveredId}
+                  isFlipped={flippedId === product.id}
+                  onFirstClick={(id) =>
+                    setFlippedId((prev) => (prev === id ? null : id))
+                  }
+                  onSecondClick={(product) => {
+                    openModal(product);
+                  }}
                 />
               ))}
             </div>
           )}
 
           {isMobile && (
-            <MobileStack products={products} onOpenModal={openModal} />
+            <MobileStack
+              products={products}
+              onOpenModal={openModal}
+              onZoom={setZoomedProduct}
+            />
           )}
         </div>
       </div>
@@ -1319,10 +1332,14 @@ function Collections() {
               {/* ── IMAGE PANEL ── */}
               <div
                 style={{
-                  // FIX: explicit height so the image has a bounded container
                   height: isMobile ? "280px" : "460px",
-                  background: "transparent",
-                  borderRight: "1px solid rgba(200,110,15,0.1)",
+                  background: "#1a1208",
+                  borderRight: isMobile
+                    ? "none"
+                    : "1px solid rgba(200,110,15,0.1)",
+                  borderBottom: isMobile
+                    ? "1px solid rgba(200,110,15,0.1)"
+                    : "none",
                   position: "relative",
                   overflow: "hidden",
                   display: "flex",
@@ -1345,12 +1362,10 @@ function Collections() {
                         objectFit: showModel ? "cover" : "contain",
                         padding: showModel ? "0" : "16px",
                         zIndex: 2,
-
-                        filter: showModel
-                          ? "none"
-                          : "brightness(1.15) contrast(1.05)",
+                        filter: showModel ? "none" : "brightness(1.05)",
                         transition: "opacity 0.3s ease",
                         cursor: showModel ? "default" : "zoom-in",
+                        WebkitTapHighlightColor: "transparent",
                       }}
                     />
                     {showModel && (
@@ -1362,6 +1377,34 @@ function Collections() {
                           zIndex: 3,
                         }}
                       />
+                    )}
+                    {isMobile && !showModel && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "10px",
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          zIndex: 6,
+                          background: "rgba(0,0,0,0.6)",
+                          border: "1px solid rgba(200,110,15,0.25)",
+                          borderRadius: "999px",
+                          padding: "4px 14px",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontFamily: "Special Elite",
+                            fontSize: "7px",
+                            letterSpacing: "3px",
+                            color: "rgba(200,110,15,0.7)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          TAP IMAGE TO ZOOM
+                        </p>
+                      </div>
                     )}
                   </>
                 ) : (
@@ -1854,17 +1897,19 @@ function Collections() {
       {zoomedProduct && (
         <div
           onClick={() => setZoomedProduct(null)}
+          onTouchEnd={() => setZoomedProduct(null)}
           style={{
             position: "fixed",
             inset: 0,
             zIndex: 100,
-            background: "rgba(0,0,0,0.92)",
+            background: "rgba(0,0,0,0.95)",
             backdropFilter: "blur(16px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "zoom-out",
-            padding: "24px",
+            padding: "60px 16px 40px",
+            touchAction: "none",
           }}
         >
           {/* Close button */}
@@ -1872,16 +1917,16 @@ function Collections() {
             onClick={() => setZoomedProduct(null)}
             style={{
               position: "absolute",
-              top: "20px",
-              right: "20px",
+              top: "16px",
+              right: "16px",
               background: "none",
               border: "1px solid rgba(200,110,15,0.4)",
               color: "rgba(200,110,15,0.8)",
               borderRadius: "50%",
-              width: "36px",
-              height: "36px",
+              width: "40px",
+              height: "40px",
               cursor: "pointer",
-              fontSize: "14px",
+              fontSize: "16px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1900,13 +1945,13 @@ function Collections() {
             ✕
           </button>
 
-          {/* Product name top */}
+          {/* Product name */}
           <div
             style={{
               position: "absolute",
-              top: "20px",
-              left: "50%",
-              transform: "translateX(-50%)",
+              top: "16px",
+              left: "16px",
+              right: "56px",
               textAlign: "center",
               zIndex: 10,
             }}
@@ -1914,8 +1959,8 @@ function Collections() {
             <p
               style={{
                 fontFamily: "Metal Mania",
-                fontSize: "clamp(12px, 2vw, 18px)",
-                letterSpacing: "0.2em",
+                fontSize: "clamp(11px, 2vw, 18px)",
+                letterSpacing: "0.15em",
                 color: "rgba(245,240,232,0.9)",
                 textShadow: "0 2px 12px rgba(0,0,0,0.8)",
               }}
@@ -1925,10 +1970,10 @@ function Collections() {
             <p
               style={{
                 fontFamily: "Special Elite",
-                fontSize: "9px",
+                fontSize: "8px",
                 letterSpacing: "4px",
                 color: "rgba(200,110,15,0.7)",
-                marginTop: "4px",
+                marginTop: "3px",
               }}
             >
               {zoomedProduct.subtitle}
@@ -1940,14 +1985,17 @@ function Collections() {
             src={zoomedProduct.images[activeImage] || zoomedProduct.images[0]}
             alt={zoomedProduct.name}
             onClick={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             style={{
-              maxWidth: "90vw",
-              maxHeight: "80vh",
+              maxWidth: "100%",
+              maxHeight: "100%",
+              width: "auto",
+              height: "auto",
               objectFit: "contain",
-
-              filter: "brightness(1.3) contrast(1.1) saturate(1.1)",
+              filter: "brightness(1.05)",
               borderRadius: "4px",
               animation: "zoomIn 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+              display: "block",
             }}
           />
 
@@ -1955,23 +2003,25 @@ function Collections() {
           <p
             style={{
               position: "absolute",
-              bottom: "20px",
+              bottom: "12px",
               left: "50%",
               transform: "translateX(-50%)",
               fontFamily: "Special Elite",
-              fontSize: "8px",
-              letterSpacing: "4px",
+              fontSize: "7px",
+              letterSpacing: "3px",
               color: "rgba(245,240,232,0.2)",
               whiteSpace: "nowrap",
             }}
           >
-            CLICK ANYWHERE TO CLOSE · ESC
+            {isMobile
+              ? "TAP OUTSIDE TO CLOSE"
+              : "CLICK ANYWHERE TO CLOSE · ESC"}
           </p>
 
           <style>{`
             @keyframes zoomIn {
-              from { transform: scale(0.7); opacity: 0; }
-              to   { transform: scale(1);   opacity: 1; }
+              from { transform: scale(0.75); opacity: 0; }
+              to   { transform: scale(1);    opacity: 1; }
             }
           `}</style>
         </div>
