@@ -1224,7 +1224,7 @@ function Collections() {
                   <div
                     style={{
                       position: "absolute",
-                      top: "12px",
+                      top: "4px",
                       left: "50%",
                       transform: "translateX(-50%)",
                       zIndex: 10,
@@ -1387,16 +1387,6 @@ function Collections() {
                         gap: "6px",
                       }}
                     >
-                      <p
-                        style={{
-                          fontFamily: "Special Elite",
-                          fontSize: "10px",
-                          letterSpacing: "4px",
-                          color: "rgba(200,110,15,0.65)",
-                        }}
-                      >
-                        {VIEW_LABELS[activeImage]}
-                      </p>
                       <div style={{ display: "flex", gap: "6px" }}>
                         {selected.images.map((_, i) => (
                           <button
