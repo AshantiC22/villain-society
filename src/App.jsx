@@ -4,6 +4,7 @@ import Hero from "./components/Hero";
 import Collections from "./components/Collections";
 import About from "./components/About";
 import Contact from "./components/Contact";
+import Admin from "./components/admin";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/collections" element={<Collections />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

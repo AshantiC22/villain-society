@@ -66,6 +66,7 @@ function Navbar() {
             { to: "/about", label: "About" },
             { to: "/collections", label: "Collections" },
             { to: "/contact", label: "Contact" },
+            { to: "/admin", label: "Admin" },
           ].map((link) => (
             <li key={link.to}>
               <Link
@@ -107,6 +108,7 @@ function Navbar() {
             { to: "/about", label: "About" },
             { to: "/collections", label: "Collections" },
             { to: "/contact", label: "Contact" },
+            { to: "/admin", label: "Admin" },
           ].map((link) => (
             <li key={link.to} className="w-full text-center">
               <Link
