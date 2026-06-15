@@ -947,13 +947,57 @@ function Collections() {
           </h1>
           <div
             style={{
-              width: "40px",
-              height: "1px",
-              background:
-                "linear-gradient(to right, transparent, rgba(200,110,15,0.7), transparent)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
               margin: "10px auto",
             }}
-          />
+          >
+            <div
+              style={{
+                flex: 1,
+                maxWidth: "60px",
+                height: "1px",
+                background:
+                  "linear-gradient(to right, transparent, rgba(200,110,15,0.5))",
+              }}
+            />
+
+            {waitlistCount > 0 ? (
+              <p
+                style={{
+                  fontFamily: "Special Elite",
+                  fontSize: "9px",
+                  letterSpacing: "4px",
+                  color: "rgba(200,110,15,0.7)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {waitlistCount} VILLAINS WAITING
+              </p>
+            ) : (
+              <div
+                style={{
+                  width: "6px",
+                  height: "6px",
+                  borderRadius: "50%",
+                  background: "rgba(200,110,15,0.5)",
+                }}
+              />
+            )}
+
+            <div
+              style={{
+                flex: 1,
+                maxWidth: "60px",
+                height: "1px",
+                background:
+                  "linear-gradient(to left, transparent, rgba(200,110,15,0.5))",
+              }}
+            />
+          </div>
+
           <p
             style={{
               fontFamily: "Special Elite",
