@@ -5,6 +5,7 @@ import Collections from "./components/Collections";
 import About from "./components/About";
 import Contact from "./components/Contact";
 import Admin from "./components/admin";
+import NotFound from "./components/NotFound";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
