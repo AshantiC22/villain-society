@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { submitWaitlist } from "../api";
 
 const products = [
@@ -424,11 +425,12 @@ function CardFront({ product, size = "tarot", showClickHint = false }) {
 
 // ── DESKTOP TAROT CARD ──
 function TarotCard({ product, index, isFlipped, onFirstClick, onSecondClick }) {
+  const navigate = useNavigate();
   const angle = ARC_ANGLES[index] ?? 0;
   const yOffset = ARC_Y_OFFSET[index] ?? 0;
 
   const handleClick = () => {
-    if (isFlipped) onSecondClick(product);
+    if (isFlipped) navigate(`/products/${product.id}`);
     else onFirstClick(product.id);
   };
 
@@ -496,6 +498,7 @@ function StackCard({ product, isFlipped }) {
 
 // ── MOBILE STACKED DECK ──
 function MobileStack({ products, onOpenModal }) {
+  const navigate = useNavigate();
   const [stack, setStack] = useState([...products].reverse());
   const [isFlipped, setIsFlipped] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -548,7 +551,7 @@ function MobileStack({ products, onOpenModal }) {
     if (!isFlipped) {
       setIsFlipped(true);
     } else {
-      onOpenModal(topCard);
+      navigate(`/products/${topCard.id}`);
     }
   };
 
