@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import VillainEye from "./VillainEye";
 
 const links = [
   { to: "/", label: "HOME", number: "01", stamp: "CLEARED" },
@@ -91,82 +92,15 @@ function Navbar() {
             ))}
           </ul>
 
-          {/* Cart icon — desktop */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/cart"
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "10px",
-                letterSpacing: "3px",
-                color: "rgba(245,240,232,0.6)",
-                textDecoration: "none",
-                border: "1px solid rgba(200,110,15,0.3)",
-                padding: "6px 14px",
-                borderRadius: "6px",
-                position: "relative",
-              }}
-            >
-              CART
-              {totalItems > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-8px",
-                    right: "-8px",
-                    background: "#CC0000",
-                    color: "white",
-                    borderRadius: "50%",
-                    width: "18px",
-                    height: "18px",
-                    fontSize: "10px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "Special Elite",
-                  }}
-                >
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+          {/* Villain Eye — desktop */}
+          <div className="hidden md:flex items-center">
+            <VillainEye />
           </div>
 
-          {/* Mobile right side — cart icon */}
-          <Link
-            to="/cart"
-            className="md:hidden"
-            style={{
-              fontFamily: "Special Elite",
-              fontSize: "9px",
-              letterSpacing: "2px",
-              color: "rgba(245,240,232,0.6)",
-              textDecoration: "none",
-              position: "relative",
-            }}
-          >
-            CART
-            {totalItems > 0 && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-6px",
-                  right: "-8px",
-                  background: "#CC0000",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: "16px",
-                  height: "16px",
-                  fontSize: "9px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {totalItems}
-              </span>
-            )}
-          </Link>
+          {/* Villain Eye — mobile */}
+          <div className="md:hidden">
+            <VillainEye />
+          </div>
         </div>
       </nav>
 
@@ -248,7 +182,7 @@ function Navbar() {
           }}
         />
 
-        {/* Nav links as case file entries */}
+        {/* Nav links */}
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {links.map((link, i) => (
             <li key={link.to}>
@@ -310,7 +244,13 @@ function Navbar() {
                 {/* Stamp */}
                 <div
                   style={{
-                    border: `1px solid ${i === 0 ? "rgba(0,180,0,0.4)" : i === 3 ? "rgba(200,110,15,0.4)" : "rgba(200,0,0,0.4)"}`,
+                    border: `1px solid ${
+                      i === 0
+                        ? "rgba(0,180,0,0.4)"
+                        : i === 3
+                          ? "rgba(200,110,15,0.4)"
+                          : "rgba(200,0,0,0.4)"
+                    }`,
                     padding: "2px 8px",
                     borderRadius: "4px",
                     transform: `rotate(${i % 2 === 0 ? "-4deg" : "3deg"})`,
@@ -334,12 +274,7 @@ function Navbar() {
                 </div>
 
                 {/* Arrow */}
-                <p
-                  style={{
-                    color: "rgba(200,110,15,0.3)",
-                    fontSize: "12px",
-                  }}
-                >
+                <p style={{ color: "rgba(200,110,15,0.3)", fontSize: "12px" }}>
                   →
                 </p>
               </Link>
@@ -347,60 +282,39 @@ function Navbar() {
           ))}
         </ul>
 
-        {/* Cart link in menu */}
-        <div style={{ padding: "24px 28px", marginTop: "8px" }}>
-          <Link
-            to="/cart"
-            onClick={closeMenu}
+        {/* Villain Eye in mobile menu */}
+        <div
+          style={{
+            padding: "24px 28px",
+            marginTop: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            border: "1px solid rgba(200,110,15,0.2)",
+            borderRadius: "10px",
+            margin: "8px 28px 0",
+            background: "rgba(200,110,15,0.05)",
+          }}
+        >
+          <p
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "16px 20px",
-              border: "1px solid rgba(200,110,15,0.2)",
-              borderRadius: "10px",
-              textDecoration: "none",
-              background: "rgba(200,110,15,0.05)",
+              fontFamily: "Special Elite",
+              fontSize: "11px",
+              letterSpacing: "4px",
+              color: "rgba(200,110,15,0.7)",
             }}
           >
-            <p
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "11px",
-                letterSpacing: "4px",
-                color: "rgba(200,110,15,0.7)",
-              }}
-            >
-              VIEW CART
-            </p>
-            {totalItems > 0 && (
-              <span
-                style={{
-                  background: "#CC0000",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: "22px",
-                  height: "22px",
-                  fontSize: "11px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontFamily: "Special Elite",
-                }}
-              >
-                {totalItems}
-              </span>
-            )}
-          </Link>
+            VIEW CART
+          </p>
+          <VillainEye />
         </div>
 
         {/* Bottom info */}
         <div
           style={{
             marginTop: "auto",
-            padding: "0 28px",
+            padding: "20px 28px 0",
             borderTop: "1px solid rgba(200,110,15,0.08)",
-            paddingTop: "20px",
           }}
         >
           <p
@@ -419,7 +333,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Dark overlay when menu open */}
+      {/* Dark overlay */}
       {isOpen && (
         <div
           onClick={closeMenu}
@@ -432,12 +346,6 @@ function Navbar() {
           }}
         />
       )}
-
-      <style>{`
-        @media (min-width: 768px) {
-          .case-file-menu { display: none !important; }
-        }
-      `}</style>
     </>
   );
 }

@@ -10,6 +10,7 @@ import Admin from "./components/admin";
 import NotFound from "./components/NotFound";
 import LoadingScreen from "./components/LoadingScreen";
 import ProductPage from "./components/ProductPage";
+import Cart from "./pages/Cart";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/products/:id" element={<ProductPage />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
