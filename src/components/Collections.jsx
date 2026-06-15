@@ -975,7 +975,9 @@ function Collections() {
               fontSize: "11px",
               letterSpacing: "4px",
               color: "rgba(200,110,15,0.7)",
-              marginTop: "8px",
+              textAlign: "center",
+              marginTop: "4px",
+              marginBottom: "8px",
             }}
           >
             {waitlistCount} VILLAINS WAITING
