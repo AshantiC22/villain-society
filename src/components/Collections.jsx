@@ -787,6 +787,16 @@ function Collections() {
   const [waitlistStatus, setWaitlistStatus] = useState("idle");
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [waitlistCount, setWaitlistCount] = useState(0);
+
+  useEffect(() => {
+    fetch(
+      "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/waitlist",
+    )
+      .then((res) => res.json())
+      .then((data) => setWaitlistCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => setWaitlistCount(0));
+  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -957,6 +967,20 @@ function Collections() {
               : "CLICK TO FLIP · CLICK AGAIN TO VIEW · AUG 2026"}
           </p>
         </div>
+
+        {waitlistCount > 0 && (
+          <p
+            style={{
+              fontFamily: "Special Elite",
+              fontSize: "11px",
+              letterSpacing: "4px",
+              color: "rgba(200,110,15,0.7)",
+              marginTop: "8px",
+            }}
+          >
+            {waitlistCount} VILLAINS WAITING
+          </p>
+        )}
 
         {/* Cards */}
         <div className="flex-1 flex flex-col items-center justify-center">
