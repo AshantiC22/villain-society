@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -6,10 +7,13 @@ import About from "./components/About";
 import Contact from "./components/Contact";
 import Admin from "./components/admin";
 import NotFound from "./components/NotFound";
+import LoadingScreen from "./components/LoadingScreen";
 
 function App() {
+  const [loading, setLoading] = useState(true);
   return (
     <BrowserRouter>
+      {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
       <Navbar />
       <Routes>
         <Route path="/" element={<Hero />} />
