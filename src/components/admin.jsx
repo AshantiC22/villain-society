@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 function Admin() {
-  // ── STATE ──
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [contactData, setContactData] = useState([]);
   const [waitlistData, setWaitlistData] = useState([]);
+  const [orderData, setOrderData] = useState([]);
 
-  // ── FETCH DATA WHEN LOGGED IN ──
   useEffect(() => {
     if (isLoggedIn) {
       fetch(
@@ -25,10 +24,16 @@ function Admin() {
         .then((res) => res.json())
         .then((data) => setContactData(Array.isArray(data) ? data : []))
         .catch(() => setContactData([]));
+
+      fetch(
+        "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/orders",
+      )
+        .then((res) => res.json())
+        .then((data) => setOrderData(Array.isArray(data) ? data : []))
+        .catch(() => setOrderData([]));
     }
   }, [isLoggedIn]);
 
-  // ── LOGIN HANDLER ──
   const handleLogin = () => {
     if (userName === "villainadmin" && password === "villainadmin123") {
       setIsLoggedIn(true);
@@ -38,16 +43,15 @@ function Admin() {
     }
   };
 
-  // ── LOGOUT HANDLER ──
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName("");
     setPassword("");
     setWaitlistData([]);
     setContactData([]);
+    setOrderData([]);
   };
 
-  // ── EXPORT CSV ──
   const exportCSV = () => {
     const rows = [
       ["Email", "Product", "Size", "Date"],
@@ -67,12 +71,10 @@ function Admin() {
     a.click();
   };
 
-  // ── CALCULATE DAYS LEFT ──
   const daysLeft = Math.ceil(
     (new Date("2026-08-01") - new Date()) / (1000 * 60 * 60 * 24),
   );
 
-  // ── MOST POPULAR PRODUCT ──
   const productCount = {};
   waitlistData.forEach((item) => {
     const product = item.product?.S || "Unknown";
@@ -82,7 +84,6 @@ function Admin() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
 
-  // ── MOST POPULAR SIZE ──
   const sizeCount = {};
   waitlistData.forEach((item) => {
     const size = item.size?.S || "Unknown";
@@ -91,6 +92,10 @@ function Admin() {
   const topSizes = Object.entries(sizeCount)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
+
+  const totalRevenue = orderData.reduce((sum, order) => {
+    return sum + (parseFloat(order.amount?.N) || 0);
+  }, 0);
 
   // ── DASHBOARD VIEW ──
   if (isLoggedIn) {
@@ -122,10 +127,12 @@ function Admin() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
           {[
             { label: "TOTAL SIGNUPS", value: waitlistData.length },
             { label: "TOTAL CONTACTS", value: contactData.length },
+            { label: "TOTAL ORDERS", value: orderData.length },
+            { label: "TOTAL REVENUE", value: `$${totalRevenue.toFixed(2)}` },
             { label: "DAYS TO LAUNCH", value: daysLeft },
           ].map((stat) => (
             <div
@@ -133,7 +140,7 @@ function Admin() {
               className="border border-[rgba(200,110,15,0.2)] rounded-xl p-6 bg-[rgba(18,10,4,0.8)] text-center"
             >
               <p
-                className="text-4xl text-[rgba(200,110,15,0.9)] mb-2"
+                className="text-3xl text-[rgba(200,110,15,0.9)] mb-2"
                 style={{ fontFamily: "Metal Mania" }}
               >
                 {stat.value}
@@ -227,6 +234,105 @@ function Admin() {
           </div>
         </div>
 
+        {/* Orders Table */}
+        <div className="border border-[rgba(200,110,15,0.2)] rounded-xl p-6 bg-[rgba(18,10,4,0.8)] mb-10">
+          <p
+            className="text-[9px] tracking-[5px] text-[rgba(200,110,15,0.6)] mb-6"
+            style={{ fontFamily: "Special Elite" }}
+          >
+            ORDERS
+          </p>
+          {orderData.length === 0 ? (
+            <p
+              className="text-[rgba(245,240,232,0.2)] text-sm"
+              style={{ fontFamily: "Special Elite" }}
+            >
+              No orders yet
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[rgba(200,110,15,0.1)]">
+                    {["ORDER ID", "AMOUNT", "STATUS", "ITEMS", "DATE"].map(
+                      (col) => (
+                        <th
+                          key={col}
+                          className="text-left text-[8px] tracking-[4px] text-[rgba(200,110,15,0.5)] pb-3 pr-4"
+                          style={{ fontFamily: "Special Elite" }}
+                        >
+                          {col}
+                        </th>
+                      ),
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {orderData.map((order, i) => {
+                    const items = order.items?.S
+                      ? JSON.parse(order.items.S)
+                      : [];
+                    return (
+                      <tr
+                        key={i}
+                        className="border-b border-[rgba(245,240,232,0.04)] hover:bg-[rgba(200,110,15,0.03)] transition-colors"
+                      >
+                        <td
+                          className="py-3 pr-4 text-[rgba(245,240,232,0.4)] text-xs"
+                          style={{
+                            fontFamily: "Special Elite",
+                            maxWidth: "120px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {order.orderId?.S || "-"}
+                        </td>
+                        <td
+                          className="py-3 pr-4 text-[rgba(200,110,15,0.8)] text-xs"
+                          style={{ fontFamily: "Special Elite" }}
+                        >
+                          ${parseFloat(order.amount?.N || 0).toFixed(2)}
+                        </td>
+                        <td className="py-3 pr-4 text-xs">
+                          <span
+                            style={{
+                              fontFamily: "Special Elite",
+                              fontSize: "8px",
+                              letterSpacing: "2px",
+                              padding: "3px 8px",
+                              borderRadius: "4px",
+                              border: "1px solid rgba(0,180,0,0.4)",
+                              color: "rgba(0,180,0,0.7)",
+                            }}
+                          >
+                            {order.status?.S?.toUpperCase() || "PENDING"}
+                          </span>
+                        </td>
+                        <td
+                          className="py-3 pr-4 text-[rgba(245,240,232,0.4)] text-xs"
+                          style={{ fontFamily: "Special Elite" }}
+                        >
+                          {items.length} {items.length === 1 ? "ITEM" : "ITEMS"}
+                        </td>
+                        <td
+                          className="py-3 pr-4 text-[rgba(245,240,232,0.3)] text-xs"
+                          style={{ fontFamily: "Special Elite" }}
+                        >
+                          {order.createdAt?.S
+                            ? new Date(order.createdAt.S).toLocaleDateString()
+                            : "-"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
         {/* Waitlist Table */}
         <div className="border border-[rgba(200,110,15,0.2)] rounded-xl p-6 bg-[rgba(18,10,4,0.8)] mb-10">
           <div className="flex justify-between items-center mb-6">
@@ -244,7 +350,6 @@ function Admin() {
               EXPORT CSV
             </button>
           </div>
-
           {waitlistData.length === 0 ? (
             <p
               className="text-[rgba(245,240,232,0.2)] text-sm"
@@ -316,7 +421,6 @@ function Admin() {
           >
             CONTACT MESSAGES
           </p>
-
           {contactData.length === 0 ? (
             <p
               className="text-[rgba(245,240,232,0.2)] text-sm"

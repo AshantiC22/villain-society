@@ -1,6 +1,8 @@
 import Stripe from "stripe";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const dynamo = new DynamoDBClient({ region: "us-east-2" });
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -15,8 +17,9 @@ export const handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body);
-    const { amount, currency = "usd", items } = body;
+    const { amount, currency = "usd", items, shipping } = body;
 
+    // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
       currency,
@@ -25,15 +28,32 @@ export const handler = async (event) => {
       },
     });
 
+    // Save order to DynamoDB
+    await dynamo.send(
+      new PutItemCommand({
+        TableName: "villain-orders",
+        Item: {
+          orderId: { S: paymentIntent.id },
+          status: { S: "pending" },
+          amount: { N: amount.toString() },
+          currency: { S: currency },
+          items: { S: JSON.stringify(items) },
+          shipping: { S: JSON.stringify(shipping || {}) },
+          createdAt: { S: new Date().toISOString() },
+        },
+      }),
+    );
+
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
       body: JSON.stringify({
         clientSecret: paymentIntent.client_secret,
+        orderId: paymentIntent.id,
       }),
     };
   } catch (error) {
-    console.error("Stripe error:", error);
+    console.error("Error:", error);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
