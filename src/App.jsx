@@ -11,6 +11,8 @@ import NotFound from "./components/NotFound";
 import LoadingScreen from "./components/LoadingScreen";
 import ProductPage from "./components/ProductPage";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -27,8 +29,10 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/products/:id" element={<ProductPage />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
