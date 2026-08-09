@@ -506,6 +506,7 @@ function ProductPage() {
                   {sizeError ? "PLEASE SELECT A SIZE" : "SELECT SIZE"}
                 </p>
                 <button
+                  onClick={() => navigate("/size-guide")}
                   style={{
                     fontFamily: "Special Elite",
                     fontSize: "9px",
