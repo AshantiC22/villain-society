@@ -1,5 +1,33 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
+// ── CONSTANTS ──
+const POLICY_LINKS = [
+  { to: "/shipping-policy", label: "SHIPPING POLICY" },
+  { to: "/returns-policy", label: "RETURNS POLICY" },
+  { to: "/privacy-policy", label: "PRIVACY POLICY" },
+  { to: "/size-guide", label: "SIZE GUIDE" },
+  { to: "/contact", label: "CONTACT" },
+];
+
+const SOCIAL_LINKS = [
+  { label: "INSTAGRAM", href: "https://instagram.com/vllnculture" },
+  { label: "TIKTOK", href: "https://tiktok.com/@vllnculture" },
+];
+
+// ── STYLES ──
+const linkStyle = {
+  fontFamily: "Special Elite",
+  fontSize: "9px",
+  letterSpacing: "3px",
+  color: "rgba(245,240,232,0.2)",
+  textDecoration: "none",
+  transition: "color 0.2s ease",
+};
+
+const hoverOn = (e) => (e.currentTarget.style.color = "rgba(200,110,15,0.6)");
+const hoverOff = (e) => (e.currentTarget.style.color = "rgba(245,240,232,0.2)");
+
+// ── COMPONENT ──
 function Footer() {
   return (
     <footer
@@ -32,7 +60,7 @@ function Footer() {
           VILLAIN CULTURE
         </p>
 
-        {/* Links */}
+        {/* Policy links */}
         <div
           style={{
             display: "flex",
@@ -41,30 +69,13 @@ function Footer() {
             justifyContent: "center",
           }}
         >
-          {[
-            { to: "/shipping-policy", label: "SHIPPING POLICY" },
-            { to: "/returns-policy", label: "RETURNS POLICY" },
-            { to: "/privacy-policy", label: "PRIVACY POLICY" },
-            { to: "/size-guide", label: "SIZE GUIDE" },
-            { to: "/contact", label: "CONTACT" },
-          ].map((link) => (
+          {POLICY_LINKS.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "9px",
-                letterSpacing: "3px",
-                color: "rgba(245,240,232,0.2)",
-                textDecoration: "none",
-                transition: "color 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "rgba(200,110,15,0.6)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "rgba(245,240,232,0.2)")
-              }
+              style={linkStyle}
+              onMouseEnter={hoverOn}
+              onMouseLeave={hoverOff}
             >
               {link.label}
             </Link>
@@ -73,29 +84,15 @@ function Footer() {
 
         {/* Social links */}
         <div style={{ display: "flex", gap: "20px" }}>
-          {[
-            { label: "INSTAGRAM", href: "https://instagram.com/vllnculture" },
-            { label: "TIKTOK", href: "https://tiktok.com/@vllnculture" },
-          ].map((social) => (
-            
+          {SOCIAL_LINKS.map((social) => (
+            <a
               key={social.label}
               href={social.href}
               target="_blank"
               rel="noreferrer"
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "9px",
-                letterSpacing: "3px",
-                color: "rgba(245,240,232,0.2)",
-                textDecoration: "none",
-                transition: "color 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "rgba(200,110,15,0.6)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "rgba(245,240,232,0.2)")
-              }
+              style={linkStyle}
+              onMouseEnter={hoverOn}
+              onMouseLeave={hoverOff}
             >
               {social.label}
             </a>
@@ -118,7 +115,7 @@ function Footer() {
         </p>
       </div>
     </footer>
-  )
+  );
 }
 
-export default Footer
+export default Footer;
