@@ -14,6 +14,10 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import SizeGuide from "./pages/SizeGuide";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import ReturnsPolicy from "./pages/ReturnsPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Footer from "./components/Footer";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -31,11 +35,15 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/products/:id" element={<ProductPage />} />
           <Route path="/size-guide" element={<SizeGuide />} />;
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/returns-policy" element={<ReturnsPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </CartProvider>
   );
