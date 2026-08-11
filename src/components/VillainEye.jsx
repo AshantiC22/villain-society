@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 function VillainEye() {
   const { totalItems } = useCart();
-  const hasItems = totalItems > 0;
-  const [isBlinking, setIsBlinking] = useState(false);
   const [eyeHeight, setEyeHeight] = useState(12);
-  const prevCount = useRef(totalItems);
+  const [pupilX, setPupilX] = useState(20);
+  const [pupilY, setPupilY] = useState(14);
+  const prevCount = useRef(0);
+  const timerRef = useRef(null);
+  const isReactingRef = useRef(false);
 
-  // Color based on item count
   const getColor = () => {
     if (totalItems === 0) return "rgba(200,110,15,0.7)";
     if (totalItems === 1) return "rgba(200,0,0,0.8)";
@@ -27,26 +28,202 @@ function VillainEye() {
   const color = getColor();
   const glow = getGlow();
 
-  // Trigger blink when item count increases
+  // ── STOP ALL MOVEMENT ──
+  const stopMovement = useCallback(() => {
+    isReactingRef.current = true;
+    clearTimeout(timerRef.current);
+    timerRef.current = null;
+  }, []);
+
+  // ── RESET TO CENTER ──
+  const resetToCenter = useCallback(() => {
+    setPupilX(20);
+    setPupilY(14);
+    setEyeHeight(12);
+  }, []);
+
+  // ── AUTONOMOUS BEHAVIORS ──
+  const runBehavior = useCallback(() => {
+    // Do not run if reacting to cart
+    if (isReactingRef.current) return;
+
+    const behaviors = [
+      // Natural blink
+      (done) => {
+        setEyeHeight(8);
+        setTimeout(() => setEyeHeight(2), 80);
+        setTimeout(() => setEyeHeight(8), 180);
+        setTimeout(() => {
+          setEyeHeight(12);
+          done();
+        }, 260);
+      },
+
+      // Double blink
+      (done) => {
+        setEyeHeight(2);
+        setTimeout(() => setEyeHeight(12), 120);
+        setTimeout(() => setEyeHeight(2), 280);
+        setTimeout(() => setEyeHeight(12), 400);
+        setTimeout(done, 500);
+      },
+
+      // Look left
+      (done) => {
+        setPupilX(15);
+        setTimeout(() => {
+          setPupilX(20);
+          done();
+        }, 1200);
+      },
+
+      // Look right
+      (done) => {
+        setPupilX(25);
+        setTimeout(() => {
+          setPupilX(20);
+          done();
+        }, 1200);
+      },
+
+      // Look up
+      (done) => {
+        setPupilY(11);
+        setTimeout(() => {
+          setPupilY(14);
+          done();
+        }, 900);
+      },
+
+      // Look down
+      (done) => {
+        setPupilY(17);
+        setTimeout(() => {
+          setPupilY(14);
+          done();
+        }, 900);
+      },
+
+      // Suspicious — left then right
+      (done) => {
+        setPupilX(14);
+        setTimeout(() => setPupilX(26), 600);
+        setTimeout(() => setPupilX(20), 1200);
+        setTimeout(done, 1400);
+      },
+
+      // Squint
+      (done) => {
+        setEyeHeight(5);
+        setTimeout(() => {
+          setEyeHeight(12);
+          done();
+        }, 1500);
+      },
+
+      // Dart around
+      (done) => {
+        setPupilX(24);
+        setPupilY(11);
+        setTimeout(() => {
+          setPupilX(16);
+          setPupilY(17);
+        }, 300);
+        setTimeout(() => {
+          setPupilX(20);
+          setPupilY(14);
+          done();
+        }, 700);
+      },
+
+      // Wide open
+      (done) => {
+        setEyeHeight(14);
+        setTimeout(() => {
+          setEyeHeight(12);
+          done();
+        }, 800);
+      },
+
+      // Long stare
+      (done) => {
+        setPupilX(23);
+        setTimeout(() => {
+          setPupilX(20);
+          done();
+        }, 2500);
+      },
+
+      // Sleepy
+      (done) => {
+        setEyeHeight(6);
+        setTimeout(() => setEyeHeight(4), 400);
+        setTimeout(() => setEyeHeight(12), 800);
+        setTimeout(done, 1000);
+      },
+    ];
+
+    const random = behaviors[Math.floor(Math.random() * behaviors.length)];
+
+    random(() => {
+      // Only schedule next if still not reacting
+      if (!isReactingRef.current) {
+        const delay = 1500 + Math.random() * 4000;
+        timerRef.current = setTimeout(runBehavior, delay);
+      }
+    });
+  }, []);
+
+  // ── START AUTONOMOUS LOOP ──
+  useEffect(() => {
+    timerRef.current = setTimeout(runBehavior, 2000);
+    return () => {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    };
+  }, [runBehavior]);
+
+  // ── REACT TO ITEM ADDED ──
   useEffect(() => {
     if (totalItems > prevCount.current) {
-      // Start blink sequence
-      setIsBlinking(true);
+      // STOP everything immediately
+      stopMovement();
+      resetToCenter();
 
-      // Close eye
-      setTimeout(() => setEyeHeight(1), 0);
-      // Open eye
-      setTimeout(() => setEyeHeight(12), 300);
-      // Close again
-      setTimeout(() => setEyeHeight(1), 600);
-      // Open final
+      // Stage 1 — wide open shock
+      setTimeout(() => setEyeHeight(14), 50);
+
+      // Stage 2 — look down at cart
       setTimeout(() => {
         setEyeHeight(12);
-        setIsBlinking(false);
-      }, 900);
+        setPupilY(18);
+      }, 250);
+
+      // Stage 3 — slow blink processing
+      setTimeout(() => setEyeHeight(2), 750);
+      setTimeout(() => setEyeHeight(12), 950);
+
+      // Stage 4 — look left then right
+      setTimeout(() => setPupilX(15), 1150);
+      setTimeout(() => setPupilX(25), 1550);
+      setTimeout(() => setPupilX(20), 1950);
+
+      // Stage 5 — look back forward
+      setTimeout(() => setPupilY(14), 2050);
+
+      // Stage 6 — final calm blink
+      setTimeout(() => setEyeHeight(2), 2250);
+      setTimeout(() => setEyeHeight(12), 2450);
+
+      // Stage 7 — resume autonomous
+      setTimeout(() => {
+        isReactingRef.current = false;
+        timerRef.current = setTimeout(runBehavior, 1500);
+      }, 2900);
     }
+
     prevCount.current = totalItems;
-  }, [totalItems]);
+  }, [totalItems, stopMovement, resetToCenter, runBehavior]);
 
   return (
     <Link
@@ -62,7 +239,6 @@ function VillainEye() {
         height: "44px",
       }}
     >
-      {/* Eye SVG */}
       <svg
         width="40"
         height="28"
@@ -75,49 +251,55 @@ function VillainEye() {
           overflow: "visible",
         }}
       >
-        {/* Outer eye shape — top lid */}
+        {/* Top lid */}
         <path
           d={`M2 14 C10 ${14 - eyeHeight}, 30 ${14 - eyeHeight}, 38 14`}
           stroke={color}
           strokeWidth="1.2"
           fill="none"
-          style={{ transition: "d 0.15s ease" }}
+          style={{ transition: "d 0.12s ease" }}
         />
 
-        {/* Outer eye shape — bottom lid */}
+        {/* Bottom lid */}
         <path
           d={`M2 14 C10 ${14 + eyeHeight}, 30 ${14 + eyeHeight}, 38 14`}
           stroke={color}
           strokeWidth="1.2"
           fill="none"
-          style={{ transition: "d 0.15s ease" }}
+          style={{ transition: "d 0.12s ease" }}
         />
 
         {/* Iris */}
         <ellipse
-          cx="20"
-          cy="14"
+          cx={pupilX}
+          cy={pupilY}
           rx="7"
           ry={Math.min(7, eyeHeight * 0.8)}
           stroke={color}
           strokeWidth="1"
           fill="rgba(0,0,0,0.6)"
-          style={{ transition: "all 0.15s ease" }}
+          style={{ transition: "cx 0.25s ease, cy 0.25s ease, ry 0.12s ease" }}
         />
 
         {/* Pupil */}
         <ellipse
-          cx="20"
-          cy="14"
+          cx={pupilX}
+          cy={pupilY}
           rx="3.5"
           ry={Math.min(3.5, eyeHeight * 0.4)}
           fill={color}
-          style={{ transition: "all 0.15s ease" }}
+          style={{ transition: "cx 0.25s ease, cy 0.25s ease, ry 0.12s ease" }}
         />
 
-        {/* Shine */}
+        {/* Shine follows pupil */}
         {eyeHeight > 4 && (
-          <circle cx="22" cy="11" r="1" fill="rgba(245,240,232,0.4)" />
+          <circle
+            cx={pupilX + 2}
+            cy={pupilY - 3}
+            r="1"
+            fill="rgba(245,240,232,0.5)"
+            style={{ transition: "cx 0.25s ease, cy 0.25s ease" }}
+          />
         )}
 
         {/* Eyelashes top */}
@@ -192,7 +374,7 @@ function VillainEye() {
         />
       </svg>
 
-      {/* Item count badge */}
+      {/* Badge */}
       {totalItems > 0 && (
         <span
           style={{
