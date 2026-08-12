@@ -62,8 +62,6 @@ function DesktopLink({ to, label, isActive }) {
         }}
       >
         {label}
-
-        {/* Cinematic underline */}
         <span
           style={{
             position: "absolute",
@@ -147,19 +145,18 @@ function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Interpolate values based on scroll progress
-  const bgOpacity = 0.0 + scrollProgress * 0.92;
+  // Interpolated values
+  const bgOpacity = scrollProgress * 0.92;
   const blurAmount = scrollProgress * 20;
-  const borderOpacity = scrollProgress * 0.06;
   const gradientOpacity = Math.max(0.75 - scrollProgress * 0.75, 0);
 
   return (
     <>
-      {/* ── TOP BAR ── */}
+      {/* ── TOP BAR — sits below 32px announcement bar ── */}
       <nav
         style={{
           position: "fixed",
-          top: 0,
+          top: "32px",
           left: 0,
           right: 0,
           zIndex: 200,
@@ -194,12 +191,9 @@ function Navbar() {
         >
           {/* LEFT */}
           <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
-            {/* Hamburger — mobile */}
             <div className="md:hidden">
               <Hamburger isOpen={isOpen} onClick={() => setIsOpen((p) => !p)} />
             </div>
-
-            {/* Logo — desktop */}
             <Link
               to="/"
               className="hidden md:block"
@@ -277,7 +271,6 @@ function Navbar() {
               justifyContent: "flex-end",
             }}
           >
-            {/* Luxury detail — desktop */}
             <div
               className="hidden md:flex"
               style={{
@@ -307,7 +300,6 @@ function Navbar() {
                 EST. 2026
               </span>
             </div>
-
             <VillainEye />
           </div>
         </div>
@@ -388,7 +380,7 @@ function Navbar() {
         {/* Menu content */}
         <div
           style={{
-            padding: "100px 40px 40px",
+            padding: "120px 40px 40px",
             display: "flex",
             flexDirection: "column",
             flex: 1,
@@ -496,7 +488,6 @@ function Navbar() {
                   >
                     {link.number}
                   </span>
-
                   <div
                     style={{
                       width: "1px",
@@ -505,7 +496,6 @@ function Navbar() {
                         "linear-gradient(to bottom, transparent, rgba(200,110,15,0.25), transparent)",
                     }}
                   />
-
                   <span
                     style={{
                       fontFamily: "Metal Mania",
@@ -517,7 +507,6 @@ function Navbar() {
                   >
                     {link.label}
                   </span>
-
                   <div
                     style={{
                       border: `1px solid rgba(${link.stampColor},0.35)`,
@@ -538,7 +527,6 @@ function Navbar() {
                       {link.stamp}
                     </span>
                   </div>
-
                   <span
                     style={{ color: "rgba(200,110,15,0.3)", fontSize: "14px" }}
                   >

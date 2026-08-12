@@ -18,6 +18,7 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import ReturnsPolicy from "./pages/ReturnsPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Footer";
+import AnnouncementBar from "./components/AnnouncementBar";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,7 @@ function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        <AnnouncementBar />
         {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
         <Navbar />
         <Routes>
