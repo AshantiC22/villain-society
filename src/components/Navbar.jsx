@@ -168,12 +168,16 @@ function Navbar() {
           alignItems: "center",
           background:
             scrollProgress > 0
-              ? `rgba(3,2,1,${bgOpacity})`
-              : `linear-gradient(to bottom, rgba(3,2,1,${gradientOpacity}), rgba(3,2,1,0))`,
+              ? `rgba(10,10,10,${bgOpacity})`
+              : `linear-gradient(to bottom, rgba(10,10,10,${gradientOpacity}), transparent)`,
           backdropFilter: `blur(${blurAmount}px)`,
           WebkitBackdropFilter: `blur(${blurAmount}px)`,
-          borderBottom: `1px solid rgba(200,110,15,${borderOpacity})`,
-          transition: "border-color 0.6s ease",
+          borderBottom: "none",
+          boxShadow:
+            scrollProgress > 0.5
+              ? `0 1px 0 rgba(255,255,255,${scrollProgress * 0.03})`
+              : "none",
+          transition: "box-shadow 0.6s ease, background 0.6s ease",
         }}
       >
         <div
