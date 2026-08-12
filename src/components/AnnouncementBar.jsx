@@ -1,4 +1,3 @@
-// ── CONSTANTS ──
 const messages = [
   "FREE SHIPPING ON ORDERS OVER $100",
   "VILLAIN CULTURE · EST 2026",
@@ -23,7 +22,6 @@ function AnnouncementBar() {
         zIndex: 300,
       }}
     >
-      {/* Scrolling track */}
       <div
         style={{
           display: "flex",
@@ -32,7 +30,6 @@ function AnnouncementBar() {
           willChange: "transform",
         }}
       >
-        {/* Duplicate for seamless loop */}
         {[...messages, ...messages].map((msg, i) => (
           <span
             key={i}
@@ -45,14 +42,7 @@ function AnnouncementBar() {
             }}
           >
             {msg}
-            <span
-              style={{
-                margin: "0 24px",
-                opacity: 0.4,
-              }}
-            >
-              ·
-            </span>
+            <span style={{ margin: "0 24px", opacity: 0.4 }}>·</span>
           </span>
         ))}
       </div>
