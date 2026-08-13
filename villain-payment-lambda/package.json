@@ -11,6 +11,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "stripe": "^22.2.1"
+    "@aws-sdk/client-dynamodb": "^3.1109.0",
+    "@aws-sdk/client-ses": "^3.1109.0",
+    "stripe": "^13.11.0"
   }
 }

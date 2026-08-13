@@ -1,0 +1,1 @@
+﻿{"httpMethod":"POST","body":"{\"amount\":65,\"currency\":\"usd\",\"shipping\":{\"name\":\"Test\",\"email\":\"ashanticocroft23@gmail.com\",\"address\":\"123 Test\",\"city\":\"Sumrall\",\"state\":\"MS\",\"zip\":\"39482\"},\"items\":[{\"name\":\"Test Tee\",\"size\":\"M\",\"quantity\":1,\"price\":\"65.00\"}]}"}
