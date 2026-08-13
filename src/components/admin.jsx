@@ -21,41 +21,39 @@ const F = {
   body: "Special Elite",
 };
 
-// ── STAT CARD ──
-function StatCard({ label, value, highlight }) {
+// ── PILL ──
+function Pill({ label, color }) {
+  const colors = {
+    green: {
+      border: "rgba(0,200,100,0.3)",
+      color: C.green,
+      bg: "rgba(0,200,100,0.06)",
+    },
+    red: { border: "rgba(204,0,0,0.3)", color: C.redDim, bg: C.redSub },
+    yellow: {
+      border: "rgba(220,160,0,0.3)",
+      color: C.yellow,
+      bg: "rgba(220,160,0,0.06)",
+    },
+    dim: { border: C.border, color: C.textMid, bg: "transparent" },
+  };
+  const s = colors[color] || colors.dim;
   return (
-    <div
+    <span
       style={{
-        background: C.surface,
-        border: `1px solid ${highlight ? C.red : C.border}`,
-        borderRadius: "4px",
-        padding: "28px 24px",
+        fontFamily: F.body,
+        fontSize: "8px",
+        letterSpacing: "2px",
+        padding: "4px 10px",
+        borderRadius: "2px",
+        border: `1px solid ${s.border}`,
+        color: s.color,
+        background: s.bg,
+        display: "inline-block",
       }}
     >
-      <p
-        style={{
-          fontFamily: F.body,
-          fontSize: "9px",
-          letterSpacing: "4px",
-          color: highlight ? C.red : C.textLow,
-          marginBottom: "12px",
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
-      </p>
-      <p
-        style={{
-          fontFamily: F.display,
-          fontSize: "36px",
-          letterSpacing: "2px",
-          color: highlight ? C.red : C.text,
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </p>
-    </div>
+      {label}
+    </span>
   );
 }
 
@@ -91,43 +89,6 @@ function Table({ columns, rows }) {
   );
 }
 
-// ── PILL ──
-function Pill({ label, color }) {
-  const colors = {
-    green: {
-      border: "rgba(0,200,100,0.3)",
-      color: C.green,
-      bg: "rgba(0,200,100,0.06)",
-    },
-    red: { border: "rgba(204,0,0,0.3)", color: C.redDim, bg: C.redSub },
-    yellow: {
-      border: "rgba(220,160,0,0.3)",
-      color: C.yellow,
-      bg: "rgba(220,160,0,0.06)",
-    },
-    dim: { border: C.border, color: C.textMid, bg: "transparent" },
-  };
-  const s = colors[color] || colors.dim;
-
-  return (
-    <span
-      style={{
-        fontFamily: F.body,
-        fontSize: "8px",
-        letterSpacing: "2px",
-        padding: "4px 10px",
-        borderRadius: "2px",
-        border: `1px solid ${s.border}`,
-        color: s.color,
-        background: s.bg,
-        display: "inline-block",
-      }}
-    >
-      {label}
-    </span>
-  );
-}
-
 // ── MAIN ADMIN ──
 function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -145,21 +106,31 @@ function Admin() {
   useEffect(() => {
     if (!isLoggedIn) return;
 
-    const endpoints = [
-      { url: "waitlist", setter: setWaitlistData },
-      { url: "contact", setter: setContactData },
-      { url: "orders", setter: setOrderData },
-      { url: "inventory", setter: setInventoryData },
-    ];
+    // Waitlist, contacts, orders still return raw DynamoDB format
+    fetch(
+      "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/waitlist",
+    )
+      .then((res) => res.json())
+      .then((data) => setWaitlistData(Array.isArray(data) ? data : []))
+      .catch(() => setWaitlistData([]));
 
-    endpoints.forEach(({ url, setter }) => {
-      fetch(
-        `https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/${url}`,
-      )
-        .then((res) => res.json())
-        .then((data) => setter(Array.isArray(data) ? data : []))
-        .catch(() => setter([]));
-    });
+    fetch("https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/contact")
+      .then((res) => res.json())
+      .then((data) => setContactData(Array.isArray(data) ? data : []))
+      .catch(() => setContactData([]));
+
+    fetch("https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/orders")
+      .then((res) => res.json())
+      .then((data) => setOrderData(Array.isArray(data) ? data : []))
+      .catch(() => setOrderData([]));
+
+    // Inventory now returns CLEAN format from updated Lambda
+    fetch(
+      "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/inventory",
+    )
+      .then((res) => res.json())
+      .then((data) => setInventoryData(Array.isArray(data) ? data : []))
+      .catch(() => setInventoryData([]));
   }, [isLoggedIn]);
 
   const handleLogin = () => {
@@ -201,6 +172,8 @@ function Admin() {
     a.click();
   };
 
+  // ── UPDATE STOCK ──
+  // Inventory is clean format: item.sizes = { XS: 10, S: 15, M: 20 }
   const handleUpdateStock = async (productId, size, quantity) => {
     const key = `${productId}-${size}`;
     setSaveStatus((prev) => ({ ...prev, [key]: "saving" }));
@@ -219,14 +192,36 @@ function Admin() {
       );
       setInventoryData((prev) =>
         prev.map((item) =>
-          item.productId?.S === productId
-            ? {
-                ...item,
-                sizes: {
-                  ...item.sizes,
-                  M: { ...item.sizes?.M, [size]: { N: quantity.toString() } },
-                },
-              }
+          item.productId === productId
+            ? { ...item, sizes: { ...item.sizes, [size]: parseInt(quantity) } }
+            : item,
+        ),
+      );
+      setSaveStatus((prev) => ({ ...prev, [key]: "saved" }));
+      setTimeout(() => setSaveStatus((prev) => ({ ...prev, [key]: "" })), 2000);
+    } catch {
+      setSaveStatus((prev) => ({ ...prev, [key]: "error" }));
+    }
+  };
+
+  // ── UPDATE PRODUCT FIELD ──
+  const handleUpdateProduct = async (productId, field, value) => {
+    const key = `${field === "productName" ? "name" : field}-${productId}`;
+    setSaveStatus((prev) => ({ ...prev, [key]: "saving" }));
+    try {
+      await fetch(
+        "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/inventory",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId, field, value }),
+        },
+      );
+      // Update local state — clean format
+      setInventoryData((prev) =>
+        prev.map((item) =>
+          item.productId === productId
+            ? { ...item, [field === "productName" ? "name" : field]: value }
             : item,
         ),
       );
@@ -250,8 +245,9 @@ function Admin() {
     return acc;
   }, {});
 
+  // Inventory is clean format now
   const hasLowInventory = inventoryData.some((item) =>
-    Object.values(item.sizes?.M || {}).some((s) => parseInt(s.N || 0) <= 5),
+    Object.values(item.sizes || {}).some((qty) => parseInt(qty) <= 5),
   );
 
   const getStockStatus = (qty) => {
@@ -268,7 +264,6 @@ function Admin() {
     { key: "inventory", label: "INVENTORY", alert: hasLowInventory },
   ];
 
-  // ── INPUT STYLE ──
   const inputStyle = {
     width: "100%",
     background: C.surface,
@@ -284,7 +279,6 @@ function Admin() {
     boxSizing: "border-box",
   };
 
-  // ── ROW STYLE ──
   const trStyle = {
     borderBottom: `1px solid ${C.border}`,
     transition: "background 0.15s ease",
@@ -314,7 +308,6 @@ function Admin() {
         }}
       >
         <div style={{ width: "100%", maxWidth: "400px" }}>
-          {/* Logo */}
           <p
             style={{
               fontFamily: F.display,
@@ -340,7 +333,6 @@ function Admin() {
             ADMIN PORTAL
           </p>
 
-          {/* Form */}
           <div
             style={{
               background: C.surface,
@@ -453,7 +445,7 @@ function Admin() {
 
   // ── DASHBOARD ──
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", paddingTop: "70px" }}>
+    <div style={{ background: C.bg, minHeight: "100vh", paddingTop: "102px" }}>
       <div
         style={{
           maxWidth: "1280px",
@@ -496,7 +488,6 @@ function Admin() {
               ADMIN
             </h1>
           </div>
-
           <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
             <p
               style={{
@@ -548,7 +539,6 @@ function Admin() {
             gap: "4px",
             marginBottom: "40px",
             borderBottom: `1px solid ${C.border}`,
-            paddingBottom: "0",
           }}
         >
           {TABS.map((tab) => (
@@ -599,7 +589,6 @@ function Admin() {
         {/* ── OVERVIEW ── */}
         {activeTab === "overview" && (
           <div>
-            {/* Stats */}
             <div
               style={{
                 display: "grid",
@@ -622,10 +611,7 @@ function Admin() {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  style={{
-                    background: C.surface,
-                    padding: "32px 24px",
-                  }}
+                  style={{ background: C.surface, padding: "32px 24px" }}
                 >
                   <p
                     style={{
@@ -653,7 +639,6 @@ function Admin() {
               ))}
             </div>
 
-            {/* Top products */}
             <div
               style={{
                 display: "grid",
@@ -701,7 +686,6 @@ function Admin() {
                   >
                     {section.title}
                   </p>
-
                   {section.items.length === 0 ? (
                     <p
                       style={{
@@ -780,7 +764,6 @@ function Admin() {
             >
               {orderData.length} ORDERS
             </p>
-
             {orderData.length === 0 ? (
               <p
                 style={{
@@ -906,7 +889,6 @@ function Admin() {
                 EXPORT CSV
               </button>
             </div>
-
             {waitlistData.length === 0 ? (
               <p
                 style={{
@@ -964,7 +946,6 @@ function Admin() {
             >
               {contactData.length} MESSAGES
             </p>
-
             {contactData.length === 0 ? (
               <p
                 style={{
@@ -1094,7 +1075,7 @@ function Admin() {
                   color: C.textLow,
                 }}
               >
-                Click any number to edit
+                Click any value to edit
               </p>
             </div>
 
@@ -1125,24 +1106,29 @@ function Admin() {
               ) : (
                 inventoryData
                   .sort((a, b) =>
-                    (a.productId?.S || "").localeCompare(b.productId?.S || ""),
+                    (a.productId || "").localeCompare(b.productId || ""),
                   )
                   .map((item) => {
-                    const sizes = item.sizes?.M || {};
+                    // ── CLEAN FORMAT: item.sizes = { XS: 10, S: 15, M: 20 }
+                    const sizes = item.sizes || {};
                     const totalStock = Object.values(sizes).reduce(
-                      (s, v) => s + parseInt(v.N || 0),
+                      (s, v) => s + (parseInt(v) || 0),
                       0,
                     );
                     const hasOut = Object.values(sizes).some(
-                      (s) => parseInt(s.N || 0) === 0,
+                      (v) => parseInt(v) === 0,
                     );
                     const hasLow = Object.values(sizes).some(
-                      (s) => parseInt(s.N || 0) <= 5 && parseInt(s.N || 0) > 0,
+                      (v) => parseInt(v) <= 5 && parseInt(v) > 0,
                     );
+                    const productId = item.productId;
+                    const priceKey = `price-${productId}`;
+                    const descKey = `desc-${productId}`;
+                    const nameKey = `name-${productId}`;
 
                     return (
                       <div
-                        key={item.productId?.S}
+                        key={productId}
                         style={{ background: C.surface, padding: "28px 32px" }}
                       >
                         {/* Product header */}
@@ -1151,44 +1137,394 @@ function Admin() {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "flex-start",
-                            marginBottom: "20px",
+                            marginBottom: "16px",
                           }}
                         >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "16px",
-                            }}
-                          >
-                            <p
+                          <div style={{ flex: 1, paddingRight: "24px" }}>
+                            {/* Name row */}
+                            <div
                               style={{
-                                fontFamily: F.body,
-                                fontSize: "9px",
-                                letterSpacing: "3px",
-                                color: C.textLow,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "12px",
+                                marginBottom: "16px",
+                                flexWrap: "wrap",
                               }}
                             >
-                              #{item.productId?.S}
-                            </p>
-                            <p
+                              <p
+                                style={{
+                                  fontFamily: F.body,
+                                  fontSize: "9px",
+                                  letterSpacing: "3px",
+                                  color: C.textLow,
+                                }}
+                              >
+                                #{productId}
+                              </p>
+
+                              {editingStock[nameKey] !== undefined ? (
+                                <input
+                                  type="text"
+                                  value={editingStock[nameKey]}
+                                  onChange={(e) =>
+                                    setEditingStock((prev) => ({
+                                      ...prev,
+                                      [nameKey]: e.target.value,
+                                    }))
+                                  }
+                                  onBlur={async () => {
+                                    await handleUpdateProduct(
+                                      productId,
+                                      "productName",
+                                      editingStock[nameKey],
+                                    );
+                                    setEditingStock((prev) => {
+                                      const n = { ...prev };
+                                      delete n[nameKey];
+                                      return n;
+                                    });
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      handleUpdateProduct(
+                                        productId,
+                                        "productName",
+                                        editingStock[nameKey],
+                                      );
+                                      setEditingStock((prev) => {
+                                        const n = { ...prev };
+                                        delete n[nameKey];
+                                        return n;
+                                      });
+                                    }
+                                  }}
+                                  autoFocus
+                                  style={{
+                                    background: "#1a1a1a",
+                                    border: "none",
+                                    borderBottom:
+                                      "1px solid rgba(255,255,255,0.2)",
+                                    color: C.text,
+                                    fontFamily: F.display,
+                                    fontSize: "16px",
+                                    letterSpacing: "2px",
+                                    outline: "none",
+                                    padding: "2px 4px",
+                                    width: "260px",
+                                  }}
+                                />
+                              ) : (
+                                <p
+                                  onClick={() =>
+                                    setEditingStock((prev) => ({
+                                      ...prev,
+                                      [nameKey]: item.name || "",
+                                    }))
+                                  }
+                                  title="Click to edit name"
+                                  style={{
+                                    fontFamily: F.display,
+                                    fontSize: "16px",
+                                    letterSpacing: "2px",
+                                    color: C.text,
+                                    cursor: "pointer",
+                                    transition: "opacity 0.15s ease",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.opacity = "0.6")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.opacity = "1")
+                                  }
+                                >
+                                  {item.name || "Click to add name"}
+                                </p>
+                              )}
+
+                              {saveStatus[nameKey] === "saved" && (
+                                <p
+                                  style={{
+                                    fontFamily: F.body,
+                                    fontSize: "8px",
+                                    letterSpacing: "2px",
+                                    color: C.green,
+                                  }}
+                                >
+                                  SAVED
+                                </p>
+                              )}
+                              {hasOut && (
+                                <Pill label="OUT OF STOCK" color="red" />
+                              )}
+                              {hasLow && (
+                                <Pill label="LOW STOCK" color="yellow" />
+                              )}
+                            </div>
+
+                            {/* Price editor */}
+                            <div
                               style={{
-                                fontFamily: F.display,
-                                fontSize: "16px",
-                                letterSpacing: "2px",
-                                color: C.text,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "12px",
+                                marginBottom: "12px",
                               }}
                             >
-                              {item.productName?.S}
-                            </p>
-                            {hasOut && (
-                              <Pill label="OUT OF STOCK" color="red" />
-                            )}
-                            {hasLow && (
-                              <Pill label="LOW STOCK" color="yellow" />
-                            )}
+                              <p
+                                style={{
+                                  fontFamily: F.body,
+                                  fontSize: "8px",
+                                  letterSpacing: "3px",
+                                  color: C.textLow,
+                                  minWidth: "80px",
+                                }}
+                              >
+                                PRICE
+                              </p>
+                              {editingStock[priceKey] !== undefined ? (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "4px",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontFamily: F.body,
+                                      fontSize: "14px",
+                                      color: C.textMid,
+                                    }}
+                                  >
+                                    $
+                                  </span>
+                                  <input
+                                    type="number"
+                                    value={editingStock[priceKey]}
+                                    onChange={(e) =>
+                                      setEditingStock((prev) => ({
+                                        ...prev,
+                                        [priceKey]: e.target.value,
+                                      }))
+                                    }
+                                    onBlur={async () => {
+                                      await handleUpdateProduct(
+                                        productId,
+                                        "price",
+                                        editingStock[priceKey],
+                                      );
+                                      setEditingStock((prev) => {
+                                        const n = { ...prev };
+                                        delete n[priceKey];
+                                        return n;
+                                      });
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        handleUpdateProduct(
+                                          productId,
+                                          "price",
+                                          editingStock[priceKey],
+                                        );
+                                        setEditingStock((prev) => {
+                                          const n = { ...prev };
+                                          delete n[priceKey];
+                                          return n;
+                                        });
+                                      }
+                                    }}
+                                    autoFocus
+                                    style={{
+                                      width: "80px",
+                                      background: "#1a1a1a",
+                                      border: "none",
+                                      borderBottom:
+                                        "1px solid rgba(255,255,255,0.2)",
+                                      color: C.text,
+                                      fontFamily: F.display,
+                                      fontSize: "18px",
+                                      outline: "none",
+                                      padding: "2px 4px",
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <p
+                                  onClick={() =>
+                                    setEditingStock((prev) => ({
+                                      ...prev,
+                                      [priceKey]: item.price || "0",
+                                    }))
+                                  }
+                                  title="Click to edit price"
+                                  style={{
+                                    fontFamily: F.display,
+                                    fontSize: "18px",
+                                    color: C.text,
+                                    cursor: "pointer",
+                                    transition: "opacity 0.15s ease",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.opacity = "0.6")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.opacity = "1")
+                                  }
+                                >
+                                  ${item.price || "0"}
+                                </p>
+                              )}
+                              {saveStatus[priceKey] === "saved" && (
+                                <p
+                                  style={{
+                                    fontFamily: F.body,
+                                    fontSize: "8px",
+                                    letterSpacing: "2px",
+                                    color: C.green,
+                                  }}
+                                >
+                                  SAVED
+                                </p>
+                              )}
+                              {saveStatus[priceKey] === "saving" && (
+                                <p
+                                  style={{
+                                    fontFamily: F.body,
+                                    fontSize: "8px",
+                                    letterSpacing: "2px",
+                                    color: C.textLow,
+                                  }}
+                                >
+                                  ···
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Description editor */}
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "12px",
+                              }}
+                            >
+                              <p
+                                style={{
+                                  fontFamily: F.body,
+                                  fontSize: "8px",
+                                  letterSpacing: "3px",
+                                  color: C.textLow,
+                                  minWidth: "80px",
+                                  paddingTop: "4px",
+                                }}
+                              >
+                                DESCRIPTION
+                              </p>
+                              {editingStock[descKey] !== undefined ? (
+                                <div style={{ flex: 1 }}>
+                                  <textarea
+                                    value={editingStock[descKey]}
+                                    onChange={(e) =>
+                                      setEditingStock((prev) => ({
+                                        ...prev,
+                                        [descKey]: e.target.value,
+                                      }))
+                                    }
+                                    onBlur={async () => {
+                                      await handleUpdateProduct(
+                                        productId,
+                                        "description",
+                                        editingStock[descKey],
+                                      );
+                                      setEditingStock((prev) => {
+                                        const n = { ...prev };
+                                        delete n[descKey];
+                                        return n;
+                                      });
+                                    }}
+                                    autoFocus
+                                    rows={3}
+                                    style={{
+                                      width: "100%",
+                                      background: "#1a1a1a",
+                                      border: `1px solid ${C.border}`,
+                                      borderRadius: "4px",
+                                      color: C.text,
+                                      fontFamily: F.body,
+                                      fontSize: "12px",
+                                      letterSpacing: "0.5px",
+                                      outline: "none",
+                                      padding: "8px 12px",
+                                      resize: "vertical",
+                                      lineHeight: 1.6,
+                                      boxSizing: "border-box",
+                                    }}
+                                  />
+                                  <p
+                                    style={{
+                                      fontFamily: F.body,
+                                      fontSize: "8px",
+                                      letterSpacing: "2px",
+                                      color: C.textLow,
+                                      marginTop: "4px",
+                                    }}
+                                  >
+                                    Click outside to save
+                                  </p>
+                                </div>
+                              ) : (
+                                <p
+                                  onClick={() =>
+                                    setEditingStock((prev) => ({
+                                      ...prev,
+                                      [descKey]: item.description || "",
+                                    }))
+                                  }
+                                  title="Click to edit description"
+                                  style={{
+                                    fontFamily: F.body,
+                                    fontSize: "12px",
+                                    letterSpacing: "0.5px",
+                                    color: item.description
+                                      ? C.textMid
+                                      : C.textLow,
+                                    cursor: "pointer",
+                                    lineHeight: 1.6,
+                                    flex: 1,
+                                    transition: "opacity 0.15s ease",
+                                    fontStyle: item.description
+                                      ? "normal"
+                                      : "italic",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.opacity = "0.6")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.opacity = "1")
+                                  }
+                                >
+                                  {item.description ||
+                                    "Click to add description"}
+                                </p>
+                              )}
+                              {saveStatus[descKey] === "saved" && (
+                                <p
+                                  style={{
+                                    fontFamily: F.body,
+                                    fontSize: "8px",
+                                    letterSpacing: "2px",
+                                    color: C.green,
+                                    paddingTop: "4px",
+                                  }}
+                                >
+                                  SAVED
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <div style={{ textAlign: "right" }}>
+
+                          {/* Total stock */}
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
                             <p
                               style={{
                                 fontFamily: F.display,
@@ -1212,7 +1548,16 @@ function Admin() {
                           </div>
                         </div>
 
-                        {/* Size grid */}
+                        {/* Divider */}
+                        <div
+                          style={{
+                            height: "1px",
+                            background: C.border,
+                            marginBottom: "20px",
+                          }}
+                        />
+
+                        {/* Size grid — CLEAN FORMAT: sizes = { XS: 10, S: 15 } */}
                         <div
                           style={{
                             display: "flex",
@@ -1220,12 +1565,12 @@ function Admin() {
                             gap: "8px",
                           }}
                         >
-                          {Object.entries(sizes).map(([size, stockObj]) => {
-                            const qty = parseInt(stockObj.N || 0);
-                            const key = `${item.productId?.S}-${size}`;
+                          {Object.entries(sizes).map(([size, qty]) => {
+                            const stockQty = parseInt(qty) || 0;
+                            const key = `${productId}-${size}`;
                             const editing = editingStock[key] !== undefined;
                             const status = saveStatus[key];
-                            const stock = getStockStatus(qty);
+                            const stock = getStockStatus(stockQty);
 
                             return (
                               <div
@@ -1264,7 +1609,7 @@ function Admin() {
                                     }
                                     onBlur={() => {
                                       handleUpdateStock(
-                                        item.productId?.S,
+                                        productId,
                                         size,
                                         editingStock[key],
                                       );
@@ -1277,7 +1622,7 @@ function Admin() {
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter") {
                                         handleUpdateStock(
-                                          item.productId?.S,
+                                          productId,
                                           size,
                                           editingStock[key],
                                         );
@@ -1307,7 +1652,7 @@ function Admin() {
                                     onClick={() =>
                                       setEditingStock((prev) => ({
                                         ...prev,
-                                        [key]: qty.toString(),
+                                        [key]: stockQty.toString(),
                                       }))
                                     }
                                     title="Click to edit"
@@ -1327,7 +1672,7 @@ function Admin() {
                                       (e.currentTarget.style.opacity = "1")
                                     }
                                   >
-                                    {qty}
+                                    {stockQty}
                                   </p>
                                 )}
 

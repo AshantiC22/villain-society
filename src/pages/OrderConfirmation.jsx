@@ -1,32 +1,50 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// ── DESIGN TOKENS ──
+const C = {
+  bg: "#0A0A0A",
+  surface: "#111111",
+  border: "rgba(255,255,255,0.06)",
+  text: "#F5F0E8",
+  textMid: "rgba(245,240,232,0.5)",
+  textLow: "rgba(245,240,232,0.2)",
+  red: "#CC0000",
+  redHover: "#aa0000",
+  green: "rgba(0,200,100,0.9)",
+};
+
+const F = {
+  display: "Metal Mania",
+  body: "Special Elite",
+};
+
 function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
   const [displayText, setDisplayText] = useState("");
+  const [visible, setVisible] = useState(false);
   const order = location.state;
 
-  const CONFIRMATION_TEXT = "ORDER CONFIRMED. VILLAIN WORLD WILL DELIVER.";
+  const CONFIRMATION_TEXT = "ORDER CONFIRMED.";
 
-  // Typewriter effect
   useEffect(() => {
     if (!order) return;
+    setTimeout(() => setVisible(true), 100);
     let i = 0;
     const timer = setInterval(() => {
       setDisplayText(CONFIRMATION_TEXT.slice(0, i));
       i++;
       if (i > CONFIRMATION_TEXT.length) clearInterval(timer);
-    }, 40);
+    }, 60);
     return () => clearInterval(timer);
   }, []);
 
-  // If no order data redirect to home
   if (!order) {
     return (
       <div
         style={{
-          background: "#030201",
+          background: C.bg,
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
@@ -36,14 +54,14 @@ function OrderConfirmation() {
         <button
           onClick={() => navigate("/")}
           style={{
-            fontFamily: "Special Elite",
-            fontSize: "11px",
+            fontFamily: F.body,
+            fontSize: "10px",
             letterSpacing: "4px",
-            color: "rgba(200,110,15,0.8)",
+            color: C.textMid,
             background: "none",
-            border: "1px solid rgba(200,110,15,0.4)",
+            border: `1px solid ${C.border}`,
             padding: "14px 32px",
-            borderRadius: "8px",
+            borderRadius: "4px",
             cursor: "pointer",
           }}
         >
@@ -54,85 +72,66 @@ function OrderConfirmation() {
   }
 
   return (
-    <div
-      style={{
-        background: "#030201",
-        minHeight: "100vh",
-        paddingTop: "80px",
-      }}
-    >
-      {/* Grain */}
+    <div style={{ background: C.bg, minHeight: "100vh", paddingTop: "102px" }}>
       <div
         style={{
-          position: "fixed",
-          inset: 0,
-          opacity: 0.05,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize: "180px 180px",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: "700px",
+          maxWidth: "800px",
           margin: "0 auto",
-          padding: "60px 20px",
-          position: "relative",
-          zIndex: 2,
+          padding: "48px 24px 80px",
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(16px)",
+          transition: "all 0.6s ease",
         }}
       >
-        {/* Signal confirmed */}
+        {/* Status indicator */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "8px",
-            marginBottom: "20px",
+            gap: "10px",
+            marginBottom: "32px",
           }}
         >
           <div
             style={{
-              width: "8px",
-              height: "8px",
+              width: "10px",
+              height: "10px",
               borderRadius: "50%",
-              background: "rgba(0,180,0,0.9)",
-              boxShadow: "0 0 12px rgba(0,180,0,0.6)",
+              background: C.green,
+              boxShadow: `0 0 12px ${C.green}`,
               animation: "pulse 2s infinite",
             }}
           />
           <p
             style={{
-              fontFamily: "Special Elite",
+              fontFamily: F.body,
               fontSize: "9px",
               letterSpacing: "5px",
-              color: "rgba(0,180,0,0.7)",
+              color: C.green,
             }}
           >
-            TRANSMISSION CONFIRMED
+            PAYMENT SUCCESSFUL
           </p>
         </div>
 
-        {/* Typewriter heading */}
+        {/* Heading */}
         <h1
           style={{
-            fontFamily: "Metal Mania",
-            fontSize: "clamp(20px, 3vw, 32px)",
-            letterSpacing: "0.1em",
-            color: "rgba(245,240,232,0.9)",
-            lineHeight: 1.4,
+            fontFamily: F.display,
+            fontSize: "clamp(32px, 5vw, 60px)",
+            letterSpacing: "4px",
+            color: C.text,
+            lineHeight: 1,
             marginBottom: "8px",
-            minHeight: "80px",
           }}
         >
           {displayText}
           <span
             style={{
               display: "inline-block",
-              width: "2px",
-              height: "1em",
-              background: "rgba(200,110,15,0.8)",
+              width: "3px",
+              height: "0.8em",
+              background: C.red,
               verticalAlign: "middle",
               marginLeft: "4px",
               animation: "blink 1s infinite",
@@ -140,44 +139,52 @@ function OrderConfirmation() {
           />
         </h1>
 
+        <p
+          style={{
+            fontFamily: F.body,
+            fontSize: "11px",
+            letterSpacing: "3px",
+            color: C.textLow,
+            marginBottom: "48px",
+          }}
+        >
+          VILLAIN WORLD WILL DELIVER.
+        </p>
+
         {/* Divider */}
         <div
-          style={{
-            width: "60px",
-            height: "1px",
-            background:
-              "linear-gradient(to right, rgba(200,110,15,0.6), transparent)",
-            margin: "24px 0",
-          }}
+          style={{ height: "1px", background: C.border, marginBottom: "48px" }}
         />
 
         {/* Order ID */}
         <div
           style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: "4px",
             padding: "16px 20px",
-            border: "1px solid rgba(200,110,15,0.15)",
-            borderRadius: "10px",
-            background: "rgba(18,10,4,0.8)",
-            marginBottom: "32px",
+            marginBottom: "24px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
           <p
             style={{
-              fontFamily: "Special Elite",
+              fontFamily: F.body,
               fontSize: "8px",
-              letterSpacing: "5px",
-              color: "rgba(200,110,15,0.5)",
-              marginBottom: "6px",
+              letterSpacing: "4px",
+              color: C.textLow,
             }}
           >
             ORDER ID
           </p>
           <p
             style={{
-              fontFamily: "Special Elite",
-              fontSize: "11px",
-              letterSpacing: "2px",
-              color: "rgba(245,240,232,0.4)",
+              fontFamily: F.body,
+              fontSize: "10px",
+              letterSpacing: "1px",
+              color: C.textMid,
               wordBreak: "break-all",
             }}
           >
@@ -185,151 +192,163 @@ function OrderConfirmation() {
           </p>
         </div>
 
-        {/* Two column grid */}
+        {/* Info grid */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: "20px",
-            marginBottom: "32px",
+            gap: "16px",
+            marginBottom: "24px",
           }}
           className="confirm-grid"
         >
-          {/* Shipping info */}
+          {/* Shipping */}
           <div
             style={{
-              padding: "20px",
-              border: "1px solid rgba(200,110,15,0.12)",
-              borderRadius: "12px",
-              background: "rgba(18,10,4,0.8)",
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: "4px",
+              overflow: "hidden",
             }}
           >
-            <p
+            <div
               style={{
-                fontFamily: "Special Elite",
-                fontSize: "8px",
-                letterSpacing: "5px",
-                color: "rgba(200,110,15,0.5)",
-                marginBottom: "12px",
+                padding: "16px 20px",
+                borderBottom: `1px solid ${C.border}`,
               }}
             >
-              SHIPPING TO
-            </p>
-            {[
-              order.shipping.name,
-              order.shipping.address,
-              `${order.shipping.city}, ${order.shipping.state} ${order.shipping.zip}`,
-              order.shipping.email,
-            ].map((line, i) => (
               <p
-                key={i}
                 style={{
-                  fontFamily: "Special Elite",
-                  fontSize: "11px",
-                  letterSpacing: "1px",
-                  color: "rgba(245,240,232,0.5)",
-                  lineHeight: 1.8,
+                  fontFamily: F.body,
+                  fontSize: "8px",
+                  letterSpacing: "4px",
+                  color: C.textLow,
                 }}
               >
-                {line}
+                SHIPPING TO
               </p>
-            ))}
+            </div>
+            <div style={{ padding: "16px 20px" }}>
+              {[
+                order.shipping.name,
+                order.shipping.address,
+                `${order.shipping.city}, ${order.shipping.state} ${order.shipping.zip}`,
+                order.shipping.email,
+              ].map((line, i) => (
+                <p
+                  key={i}
+                  style={{
+                    fontFamily: F.body,
+                    fontSize: "12px",
+                    letterSpacing: "0.5px",
+                    color: C.textMid,
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {line}
+                </p>
+              ))}
+            </div>
           </div>
 
           {/* Order summary */}
           <div
             style={{
-              padding: "20px",
-              border: "1px solid rgba(200,110,15,0.12)",
-              borderRadius: "12px",
-              background: "rgba(18,10,4,0.8)",
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: "4px",
+              overflow: "hidden",
             }}
           >
-            <p
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "8px",
-                letterSpacing: "5px",
-                color: "rgba(200,110,15,0.5)",
-                marginBottom: "12px",
-              }}
-            >
-              ORDER SUMMARY
-            </p>
-            {order.items.map((item, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "8px",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "Special Elite",
-                    fontSize: "10px",
-                    letterSpacing: "1px",
-                    color: "rgba(245,240,232,0.4)",
-                    flex: 1,
-                    paddingRight: "8px",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {item.name}
-                  <br />
-                  <span
-                    style={{
-                      fontSize: "8px",
-                      color: "rgba(200,110,15,0.4)",
-                    }}
-                  >
-                    {item.size} × {item.quantity}
-                  </span>
-                </p>
-                <p
-                  style={{
-                    fontFamily: "Special Elite",
-                    fontSize: "11px",
-                    color: "rgba(245,240,232,0.5)",
-                    flexShrink: 0,
-                  }}
-                >
-                  ${(parseFloat(item.price) * item.quantity).toFixed(2)}
-                </p>
-              </div>
-            ))}
-
-            {/* Divider */}
             <div
               style={{
-                height: "1px",
-                background: "rgba(200,110,15,0.1)",
-                margin: "12px 0",
+                padding: "16px 20px",
+                borderBottom: `1px solid ${C.border}`,
               }}
-            />
-
-            {/* Total */}
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            >
               <p
                 style={{
-                  fontFamily: "Metal Mania",
-                  fontSize: "14px",
-                  letterSpacing: "2px",
-                  color: "rgba(245,240,232,0.8)",
+                  fontFamily: F.body,
+                  fontSize: "8px",
+                  letterSpacing: "4px",
+                  color: C.textLow,
                 }}
               >
-                TOTAL
+                ORDER SUMMARY
               </p>
-              <p
+            </div>
+            <div style={{ padding: "16px 20px" }}>
+              {order.items.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div style={{ flex: 1, paddingRight: "12px" }}>
+                    <p
+                      style={{
+                        fontFamily: F.body,
+                        fontSize: "11px",
+                        letterSpacing: "0.5px",
+                        color: C.textMid,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {item.name}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: F.body,
+                        fontSize: "9px",
+                        letterSpacing: "2px",
+                        color: C.textLow,
+                      }}
+                    >
+                      {item.size} × {item.quantity}
+                    </p>
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: F.body,
+                      fontSize: "11px",
+                      color: C.textMid,
+                      flexShrink: 0,
+                    }}
+                  >
+                    ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                  </p>
+                </div>
+              ))}
+              <div
                 style={{
-                  fontFamily: "Metal Mania",
-                  fontSize: "16px",
-                  color: "rgba(200,110,15,1)",
+                  height: "1px",
+                  background: C.border,
+                  margin: "12px 0",
                 }}
-              >
-                ${order.total.toFixed(2)}
-              </p>
+              />
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <p
+                  style={{
+                    fontFamily: F.display,
+                    fontSize: "16px",
+                    color: C.text,
+                  }}
+                >
+                  TOTAL
+                </p>
+                <p
+                  style={{
+                    fontFamily: F.display,
+                    fontSize: "18px",
+                    color: C.text,
+                  }}
+                >
+                  ${order.total.toFixed(2)}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -337,72 +356,100 @@ function OrderConfirmation() {
         {/* What happens next */}
         <div
           style={{
-            padding: "20px",
-            border: "1px solid rgba(200,110,15,0.1)",
-            borderRadius: "12px",
-            background: "rgba(18,10,4,0.6)",
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: "4px",
+            overflow: "hidden",
             marginBottom: "40px",
           }}
         >
-          <p
+          <div
             style={{
-              fontFamily: "Special Elite",
-              fontSize: "8px",
-              letterSpacing: "5px",
-              color: "rgba(200,110,15,0.5)",
-              marginBottom: "12px",
+              padding: "16px 20px",
+              borderBottom: `1px solid ${C.border}`,
             }}
           >
-            WHAT HAPPENS NEXT
-          </p>
-          {[
-            "A confirmation email will be sent to " + order.shipping.email,
-            "Your order will be processed within 1-2 business days",
-            "Shipping takes 3-5 business days",
-            "You will receive a tracking number via email",
-          ].map((text, i) => (
             <p
-              key={i}
               style={{
-                fontFamily: "Special Elite",
-                fontSize: "10px",
-                letterSpacing: "2px",
-                color: "rgba(245,240,232,0.25)",
-                lineHeight: 1.8,
-                marginBottom: "4px",
+                fontFamily: F.body,
+                fontSize: "8px",
+                letterSpacing: "4px",
+                color: C.textLow,
               }}
             >
-              · {text}
+              WHAT HAPPENS NEXT
             </p>
-          ))}
+          </div>
+          <div style={{ padding: "20px" }}>
+            {[
+              {
+                step: "01",
+                text: `Confirmation email sent to ${order.shipping.email}`,
+              },
+              { step: "02", text: "Order processed within 1-2 business days" },
+              {
+                step: "03",
+                text: "Shipped via UPS or FedEx in 3-5 business days",
+              },
+              { step: "04", text: "Tracking number sent to your email" },
+            ].map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  gap: "16px",
+                  alignItems: "flex-start",
+                  padding: "12px 0",
+                  borderBottom: i < 3 ? `1px solid ${C.border}` : "none",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: F.body,
+                    fontSize: "8px",
+                    letterSpacing: "2px",
+                    color: C.red,
+                    minWidth: "24px",
+                  }}
+                >
+                  {item.step}
+                </p>
+                <p
+                  style={{
+                    fontFamily: F.body,
+                    fontSize: "12px",
+                    letterSpacing: "0.5px",
+                    color: C.textMid,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Buttons */}
-        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           <button
             onClick={() => navigate("/collections")}
             style={{
-              fontFamily: "Special Elite",
-              fontSize: "11px",
+              fontFamily: F.body,
+              fontSize: "10px",
               letterSpacing: "4px",
-              padding: "16px 32px",
-              borderRadius: "12px",
+              padding: "14px 28px",
+              background: C.red,
               border: "none",
+              borderRadius: "4px",
+              color: C.text,
               cursor: "pointer",
-              background:
-                "linear-gradient(135deg, rgba(210,105,8,0.95) 0%, rgba(180,80,5,0.95) 100%)",
-              color: "rgba(5,3,1,0.95)",
-              transition: "all 0.3s ease",
+              transition: "background 0.2s ease",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 8px 32px rgba(200,110,15,0.4)";
-              e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "none";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = C.redHover)
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.background = C.red)}
           >
             CONTINUE SHOPPING
           </button>
@@ -410,37 +457,36 @@ function OrderConfirmation() {
           <button
             onClick={() => navigate("/")}
             style={{
-              fontFamily: "Special Elite",
-              fontSize: "11px",
+              fontFamily: F.body,
+              fontSize: "10px",
               letterSpacing: "4px",
-              padding: "16px 32px",
-              borderRadius: "12px",
-              border: "1px solid rgba(200,110,15,0.3)",
-              cursor: "pointer",
+              padding: "14px 28px",
               background: "transparent",
-              color: "rgba(200,110,15,0.7)",
-              transition: "all 0.3s ease",
+              border: `1px solid ${C.border}`,
+              borderRadius: "4px",
+              color: C.textMid,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(200,110,15,0.8)";
-              e.currentTarget.style.color = "rgba(200,110,15,0.95)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+              e.currentTarget.style.color = C.text;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(200,110,15,0.3)";
-              e.currentTarget.style.color = "rgba(200,110,15,0.7)";
+              e.currentTarget.style.borderColor = C.border;
+              e.currentTarget.style.color = C.textMid;
             }}
           >
             RETURN HOME
           </button>
         </div>
 
-        {/* Bottom text */}
         <p
           style={{
-            fontFamily: "Special Elite",
-            fontSize: "9px",
+            fontFamily: F.body,
+            fontSize: "8px",
             letterSpacing: "3px",
-            color: "rgba(245,240,232,0.08)",
+            color: "rgba(245,240,232,0.06)",
             marginTop: "40px",
           }}
         >
@@ -455,12 +501,10 @@ function OrderConfirmation() {
         }
         @keyframes pulse {
           0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.2); }
+          50% { opacity: 1; transform: scale(1.3); }
         }
         @media (max-width: 768px) {
-          .confirm-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .confirm-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

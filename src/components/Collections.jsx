@@ -2,133 +2,88 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitWaitlist } from "../api";
 
-// ── PRODUCT DATA ──
-const products = [
+// ── STATIC PRODUCT DATA ──
+const STATIC_PRODUCTS = [
   {
     id: 1,
-    name: "Villain Oversized Tee",
+    number: "001",
     roman: "I",
     subtitle: "THE FOUNDATION",
     images: ["/products/villain-front.png", "/products/villain-back.png"],
-    description: "Built in silence. Worn with authority.",
-    details:
-      "Heavy 400gsm fleece. Oversized cut. Villain Society embroidered chest logo. Drop shoulder. Ribbed cuffs and hem.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "65.00",
     tag: "SIGNATURE DROP",
-    number: "001",
   },
   {
     id: 2,
-    name: "VILLAIN ARCHIVE TEE",
+    number: "002",
     roman: "II",
     subtitle: "THE MARK",
     images: ["/products/product-2-front.png", "/products/product-2-back.png"],
-    description: "Minimal design. Maximum intent.",
-    details:
-      "Premium 280gsm cotton. Oversized fit. Screen printed graphics. Pre-shrunk. Dropped shoulders.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "55.00",
     tag: "CORE PIECE",
-    number: "002",
   },
   {
     id: 3,
-    name: "CONTROL UNIT JOGGERS",
+    number: "003",
     roman: "III",
     subtitle: "THE MOVEMENT",
     images: ["/products/product-3-front.png", "/products/product-3-back.png"],
-    description: "Engineered for movement. Designed for dominance.",
-    details:
-      "French terry fabric. Tapered fit. Villain Society side tape. Deep side pockets.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "75.00",
     tag: "CORE PIECE",
-    number: "003",
   },
   {
     id: 4,
-    name: "SHADOW OPS JACKET",
+    number: "004",
     roman: "IV",
     subtitle: "THE SHIELD",
     images: ["/products/product-4-front.png", "/products/product-4-back.png"],
-    description: "For those who move unseen.",
-    details:
-      "Nylon shell. Villain Society back print. Zip pockets. Adjustable hood. Lightweight.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "120.00",
     tag: "LIMITED",
-    number: "004",
   },
   {
     id: 5,
-    name: "VOID RUNNER SHORTS",
+    number: "005",
     roman: "V",
     subtitle: "THE SPEED",
     images: ["/products/product-5-front.png", "/products/product-5-back.png"],
-    description: "Cut for speed. Built for the streets.",
-    details:
-      "Moisture wicking fabric. 7 inch inseam. Villain Society embroidered logo. Lined interior.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "55.00",
     tag: "CORE PIECE",
-    number: "005",
   },
   {
     id: 6,
-    name: "CORRUPTED CARGOS",
+    number: "006",
     roman: "VI",
     subtitle: "THE UTILITY",
     images: ["/products/product-6-front.png", "/products/product-6-back.png"],
-    description: "Utility meets darkness.",
-    details:
-      "Heavy duty cotton twill. Relaxed fit. 8 pockets. Villain Society patch. Adjustable hem.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "85.00",
     tag: "LIMITED",
-    number: "006",
   },
   {
     id: 7,
-    name: "BLACKOUT LONG SLEEVE",
+    number: "007",
     roman: "VII",
     subtitle: "THE SHADOW",
     images: ["/products/product-7-front.png", "/products/product-7-back.png"],
-    description: "Stay covered. Stay dangerous.",
-    details:
-      "Heavyweight cotton. Dropped shoulders. Villain Society sleeve print. Ribbed cuffs.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "60.00",
     tag: "CORE PIECE",
-    number: "007",
   },
   {
     id: 8,
-    name: "ROGUE VARSITY JACKET",
+    number: "008",
     roman: "VIII",
     subtitle: "THE REBEL",
     images: ["/products/product-8-front.png", "/products/product-8-back.png"],
-    description: "For the ones who never followed the rules.",
-    details:
-      "Wool blend body. Leather sleeves. Embroidered villain patches. Quilted lining.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "180.00",
     tag: "SIGNATURE DROP",
-    number: "008",
   },
   {
     id: 9,
-    name: "SILENT TYPE CAP",
+    number: "009",
     roman: "IX",
     subtitle: "THE CROWN",
     images: ["/products/product-9-front.png"],
-    description: "Let the silence speak.",
-    details:
-      "6 panel structured cap. Villain Society embroidered logo. Adjustable strap. One size.",
     sizes: ["ONE SIZE"],
-    price: "40.00",
     tag: "ACCESSORY",
-    number: "009",
   },
 ];
 
@@ -254,7 +209,6 @@ function ProductCard({ product, index, onClick }) {
             transition: "all 0.4s ease",
           }}
         >
-          {/* Top accent line */}
           <div
             style={{
               position: "absolute",
@@ -269,7 +223,6 @@ function ProductCard({ product, index, onClick }) {
             }}
           />
 
-          {/* Image area */}
           <div
             style={{
               width: "100%",
@@ -278,7 +231,6 @@ function ProductCard({ product, index, onClick }) {
               overflow: "hidden",
             }}
           >
-            {/* Bottom fade */}
             <div
               style={{
                 position: "absolute",
@@ -289,8 +241,6 @@ function ProductCard({ product, index, onClick }) {
                 pointerEvents: "none",
               }}
             />
-
-            {/* Side vignette */}
             <div
               style={{
                 position: "absolute",
@@ -339,7 +289,6 @@ function ProductCard({ product, index, onClick }) {
               </div>
             )}
 
-            {/* Roman numeral */}
             <div
               style={{
                 position: "absolute",
@@ -360,7 +309,6 @@ function ProductCard({ product, index, onClick }) {
               </p>
             </div>
 
-            {/* Tag badge */}
             <div
               style={{
                 position: "absolute",
@@ -387,7 +335,6 @@ function ProductCard({ product, index, onClick }) {
             </div>
           </div>
 
-          {/* Info section */}
           <div
             style={{
               padding: "12px 16px 16px",
@@ -405,7 +352,6 @@ function ProductCard({ product, index, onClick }) {
                 marginBottom: "10px",
               }}
             />
-
             <p
               style={{
                 fontFamily: "Metal Mania",
@@ -418,7 +364,6 @@ function ProductCard({ product, index, onClick }) {
             >
               {product.name}
             </p>
-
             <div
               style={{
                 display: "flex",
@@ -474,7 +419,6 @@ function ProductCard({ product, index, onClick }) {
             setFlipped(false);
           }}
         >
-          {/* Top accent */}
           <div
             style={{
               position: "absolute",
@@ -486,8 +430,6 @@ function ProductCard({ product, index, onClick }) {
               opacity: 0.9,
             }}
           />
-
-          {/* Roman numeral watermark */}
           <p
             style={{
               position: "absolute",
@@ -504,7 +446,6 @@ function ProductCard({ product, index, onClick }) {
             {product.roman}
           </p>
 
-          {/* Content */}
           <div>
             <h3
               style={{
@@ -518,7 +459,6 @@ function ProductCard({ product, index, onClick }) {
             >
               {product.name}
             </h3>
-
             <div
               style={{
                 height: "1px",
@@ -528,22 +468,22 @@ function ProductCard({ product, index, onClick }) {
               }}
             />
 
-            {/* One powerful quote */}
-            <p
-              style={{
-                fontFamily: "Special Elite",
-                fontSize: "13px",
-                letterSpacing: "1px",
-                color: "rgba(245,240,232,0.55)",
-                lineHeight: 1.8,
-                fontStyle: "italic",
-                marginBottom: "16px",
-              }}
-            >
-              "{product.description}"
-            </p>
+            {product.description && (
+              <p
+                style={{
+                  fontFamily: "Special Elite",
+                  fontSize: "13px",
+                  letterSpacing: "1px",
+                  color: "rgba(245,240,232,0.55)",
+                  lineHeight: 1.8,
+                  fontStyle: "italic",
+                  marginBottom: "16px",
+                }}
+              >
+                "{product.description}"
+              </p>
+            )}
 
-            {/* Sizes */}
             <p
               style={{
                 fontFamily: "Special Elite",
@@ -583,7 +523,6 @@ function ProductCard({ product, index, onClick }) {
             </div>
           </div>
 
-          {/* Price and button */}
           <div>
             <p
               style={{
@@ -596,7 +535,6 @@ function ProductCard({ product, index, onClick }) {
             >
               ${product.price}
             </p>
-
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -631,7 +569,6 @@ function ProductCard({ product, index, onClick }) {
             >
               VIEW PRODUCT
             </button>
-
             <p
               style={{
                 fontFamily: "Special Elite",
@@ -654,6 +591,8 @@ function ProductCard({ product, index, onClick }) {
 // ── MAIN COLLECTIONS ──
 function Collections() {
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("ALL");
   const [waitlistCount, setWaitlistCount] = useState(0);
   const [modalProduct, setModalProduct] = useState(null);
@@ -662,6 +601,43 @@ function Collections() {
   const [modalStatus, setModalStatus] = useState("idle");
   const videoRef = useRef(null);
 
+  // ── FETCH PRODUCTS FROM DYNAMODB ──
+  useEffect(() => {
+    fetch(
+      "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/inventory",
+    )
+      .then((res) => res.json())
+      .then((dynamoData) => {
+        const merged = STATIC_PRODUCTS.map((staticProduct) => {
+          const dynamic = Array.isArray(dynamoData)
+            ? dynamoData.find((d) => d.productId === staticProduct.number)
+            : null;
+          return {
+            ...staticProduct,
+            name: dynamic?.name || "",
+            price: dynamic?.price || "0",
+            description: dynamic?.description || "",
+            stock: dynamic?.sizes || {},
+          };
+        });
+        setProducts(merged);
+        setLoading(false);
+      })
+      .catch(() => {
+        setProducts(
+          STATIC_PRODUCTS.map((p) => ({
+            ...p,
+            name: "",
+            price: "0",
+            description: "",
+            stock: {},
+          })),
+        );
+        setLoading(false);
+      });
+  }, []);
+
+  // ── FETCH WAITLIST COUNT ──
   useEffect(() => {
     fetch(
       "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/waitlist",
@@ -728,17 +704,11 @@ function Collections() {
         >
           <source src="/collections-bg.mp4" type="video/mp4" />
         </video>
-
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: `
-              radial-gradient(ellipse at 50% 0%, rgba(200,110,15,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 0% 50%, rgba(200,0,0,0.06) 0%, transparent 50%),
-              radial-gradient(ellipse at 100% 50%, rgba(200,0,0,0.06) 0%, transparent 50%),
-              linear-gradient(to bottom, rgba(3,2,1,0.5) 0%, rgba(3,2,1,0.3) 40%, rgba(3,2,1,0.7) 80%, rgba(3,2,1,0.97) 100%)
-            `,
+            background: `radial-gradient(ellipse at 50% 0%, rgba(200,110,15,0.08) 0%, transparent 60%), radial-gradient(ellipse at 0% 50%, rgba(200,0,0,0.06) 0%, transparent 50%), radial-gradient(ellipse at 100% 50%, rgba(200,0,0,0.06) 0%, transparent 50%), linear-gradient(to bottom, rgba(3,2,1,0.5) 0%, rgba(3,2,1,0.3) 40%, rgba(3,2,1,0.7) 80%, rgba(3,2,1,0.97) 100%)`,
           }}
         />
       </div>
@@ -769,7 +739,6 @@ function Collections() {
             position: "relative",
           }}
         >
-          {/* Background watermark */}
           <p
             style={{
               position: "absolute",
@@ -789,7 +758,6 @@ function Collections() {
             VILLAIN
           </p>
 
-          {/* Top label */}
           <div
             style={{
               display: "inline-flex",
@@ -824,7 +792,6 @@ function Collections() {
             />
           </div>
 
-          {/* Main title */}
           <div style={{ marginBottom: "8px" }}>
             <h1
               style={{
@@ -846,11 +813,8 @@ function Collections() {
                 letterSpacing: "0.25em",
                 color: "rgba(200,110,15,1)",
                 lineHeight: 0.9,
-                textShadow: `
-                  0 0 80px rgba(200,110,15,0.4),
-                  0 0 160px rgba(200,110,15,0.2),
-                  0 4px 20px rgba(0,0,0,0.8)
-                `,
+                textShadow:
+                  "0 0 80px rgba(200,110,15,0.4), 0 0 160px rgba(200,110,15,0.2), 0 4px 20px rgba(0,0,0,0.8)",
                 display: "block",
               }}
             >
@@ -1004,26 +968,48 @@ function Collections() {
         </div>
 
         {/* ── PRODUCT GRID ── */}
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: "0 24px 100px",
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "24px",
-          }}
-          className="collections-grid"
-        >
-          {filtered.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              index={index}
-              onClick={handleProductClick}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "80px 20px",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "Special Elite",
+                fontSize: "9px",
+                letterSpacing: "6px",
+                color: "rgba(245,240,232,0.15)",
+              }}
+            >
+              LOADING...
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              maxWidth: "1280px",
+              margin: "0 auto",
+              padding: "0 24px 100px",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "24px",
+            }}
+            className="collections-grid"
+          >
+            {filtered.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={index}
+                onClick={handleProductClick}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── MODAL ── */}
@@ -1057,7 +1043,6 @@ function Collections() {
                 "0 40px 100px rgba(0,0,0,0.9), 0 0 60px rgba(200,110,15,0.06)",
             }}
           >
-            {/* Top accent */}
             <div
               style={{
                 position: "absolute",
@@ -1071,7 +1056,6 @@ function Collections() {
               }}
             />
 
-            {/* Close */}
             <button
               onClick={closeModal}
               style={{
@@ -1134,7 +1118,7 @@ function Collections() {
                     color: "rgba(245,240,232,0.3)",
                   }}
                 >
-                  You will be notified on August 1.
+                  You will be notified on drop day.
                 </p>
               </div>
             ) : (
@@ -1162,7 +1146,6 @@ function Collections() {
                 >
                   {modalProduct.name}
                 </h3>
-
                 <div
                   style={{
                     height: "1px",
@@ -1296,26 +1279,10 @@ function Collections() {
       )}
 
       <style>{`
-        @keyframes dot-pulse {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 12px rgba(200,110,15,1); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.5; }
-        }
-        @media (max-width: 900px) {
-          .collections-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 16px !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .collections-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 10px !important;
-          }
-        }
+        @keyframes dot-pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 12px rgba(200,110,15,1); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.5; } }
+        @media (max-width: 900px) { .collections-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; } }
+        @media (max-width: 480px) { .collections-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; } }
       `}</style>
     </div>
   );

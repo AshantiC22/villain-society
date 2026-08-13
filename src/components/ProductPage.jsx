@@ -2,133 +2,137 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
-// ── PRODUCT DATA ──
-const products = [
+// ── STATIC PRODUCT DATA (images, tags, colors — never changes) ──
+const STATIC_PRODUCTS = [
   {
     id: 1,
-    name: "Villain Oversized Tee",
+    number: "001",
     roman: "I",
     subtitle: "THE FOUNDATION",
     images: ["/products/villain-front.png", "/products/villain-back.png"],
-    description: "Built in silence. Worn with authority.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "SIGNATURE DROP",
     details:
       "Heavy 400gsm fleece. Oversized cut. Villain Society embroidered chest logo. Drop shoulder. Ribbed cuffs and hem.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "65.00",
-    tag: "SIGNATURE DROP",
-    number: "001",
   },
   {
     id: 2,
-    name: "VILLAIN ARCHIVE TEE",
+    number: "002",
     roman: "II",
     subtitle: "THE MARK",
     images: ["/products/product-2-front.png", "/products/product-2-back.png"],
-    description: "Minimal design. Maximum intent.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "CORE PIECE",
     details:
       "Premium 280gsm cotton. Oversized fit. Screen printed graphics. Pre-shrunk. Dropped shoulders.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "55.00",
-    tag: "CORE PIECE",
-    number: "002",
   },
   {
     id: 3,
-    name: "CONTROL UNIT JOGGERS",
+    number: "003",
     roman: "III",
     subtitle: "THE MOVEMENT",
     images: ["/products/product-3-front.png", "/products/product-3-back.png"],
-    description: "Engineered for movement. Designed for dominance.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "CORE PIECE",
     details:
       "French terry fabric. Tapered fit. Villain Society side tape. Deep side pockets.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "75.00",
-    tag: "CORE PIECE",
-    number: "003",
   },
   {
     id: 4,
-    name: "SHADOW OPS JACKET",
+    number: "004",
     roman: "IV",
     subtitle: "THE SHIELD",
     images: ["/products/product-4-front.png", "/products/product-4-back.png"],
-    description: "For those who move unseen.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "LIMITED",
     details:
       "Nylon shell. Villain Society back print. Zip pockets. Adjustable hood. Lightweight.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "120.00",
-    tag: "LIMITED",
-    number: "004",
   },
   {
     id: 5,
-    name: "VOID RUNNER SHORTS",
+    number: "005",
     roman: "V",
     subtitle: "THE SPEED",
     images: ["/products/product-5-front.png", "/products/product-5-back.png"],
-    description: "Cut for speed. Built for the streets.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "CORE PIECE",
     details:
       "Moisture wicking fabric. 7 inch inseam. Villain Society embroidered logo. Lined interior.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "55.00",
-    tag: "CORE PIECE",
-    number: "005",
   },
   {
     id: 6,
-    name: "CORRUPTED CARGOS",
+    number: "006",
     roman: "VI",
     subtitle: "THE UTILITY",
     images: ["/products/product-6-front.png", "/products/product-6-back.png"],
-    description: "Utility meets darkness.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "LIMITED",
     details:
       "Heavy duty cotton twill. Relaxed fit. 8 pockets. Villain Society patch. Adjustable hem.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "85.00",
-    tag: "LIMITED",
-    number: "006",
   },
   {
     id: 7,
-    name: "BLACKOUT LONG SLEEVE",
+    number: "007",
     roman: "VII",
     subtitle: "THE SHADOW",
     images: ["/products/product-7-front.png", "/products/product-7-back.png"],
-    description: "Stay covered. Stay dangerous.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "CORE PIECE",
     details:
       "Heavyweight cotton. Dropped shoulders. Villain Society sleeve print. Ribbed cuffs.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "60.00",
-    tag: "CORE PIECE",
-    number: "007",
   },
   {
     id: 8,
-    name: "ROGUE VARSITY JACKET",
+    number: "008",
     roman: "VIII",
     subtitle: "THE REBEL",
     images: ["/products/product-8-front.png", "/products/product-8-back.png"],
-    description: "For the ones who never followed the rules.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    tag: "SIGNATURE DROP",
     details:
       "Wool blend body. Leather sleeves. Embroidered villain patches. Quilted lining.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    price: "180.00",
-    tag: "SIGNATURE DROP",
-    number: "008",
+    colors: [
+      { name: "WHITE", hex: "#F5F0E8", filter: "none" },
+      { name: "BLACK", hex: "#1a1a1a", filter: "brightness(0.1)" },
+      { name: "GREY", hex: "#808080", filter: "grayscale(1) brightness(0.6)" },
+      {
+        name: "NAVY",
+        hex: "#1B2A4A",
+        filter: "sepia(1) saturate(3) hue-rotate(190deg) brightness(0.4)",
+      },
+      {
+        name: "RED",
+        hex: "#CC0000",
+        filter: "sepia(1) saturate(5) hue-rotate(320deg) brightness(0.7)",
+      },
+      {
+        name: "BLUE",
+        hex: "#1E40AF",
+        filter: "sepia(1) saturate(4) hue-rotate(200deg) brightness(0.6)",
+      },
+      { name: "CREAM", hex: "#F5E6C8", filter: "sepia(0.3) brightness(1.05)" },
+      {
+        name: "BROWN",
+        hex: "#6B3A2A",
+        filter: "sepia(1) saturate(2) hue-rotate(340deg) brightness(0.5)",
+      },
+      {
+        name: "PURPLE",
+        hex: "#5B2D8E",
+        filter: "sepia(1) saturate(4) hue-rotate(250deg) brightness(0.5)",
+      },
+    ],
   },
   {
     id: 9,
-    name: "SILENT TYPE CAP",
+    number: "009",
     roman: "IX",
     subtitle: "THE CROWN",
     images: [],
-    description: "Let the silence speak.",
+    sizes: ["ONE SIZE"],
+    tag: "ACCESSORY",
     details:
       "6 panel structured cap. Villain Society embroidered logo. Adjustable strap. One size.",
-    sizes: ["ONE SIZE"],
-    price: "40.00",
-    tag: "ACCESSORY",
-    number: "009",
   },
 ];
 
@@ -148,7 +152,6 @@ function ImagePlaceholder({ product }) {
         overflow: "hidden",
       }}
     >
-      {/* Large roman numeral watermark */}
       <p
         style={{
           position: "absolute",
@@ -162,8 +165,6 @@ function ImagePlaceholder({ product }) {
       >
         {product.roman}
       </p>
-
-      {/* Mascot */}
       <img
         src="/mascot.png"
         alt=""
@@ -175,8 +176,6 @@ function ImagePlaceholder({ product }) {
           animation: "float 4s ease-in-out infinite",
         }}
       />
-
-      {/* Product number */}
       <p
         style={{
           fontFamily: "Special Elite",
@@ -188,8 +187,6 @@ function ImagePlaceholder({ product }) {
       >
         #{product.number}
       </p>
-
-      {/* Arriving soon text */}
       <p
         style={{
           fontFamily: "Metal Mania",
@@ -201,7 +198,6 @@ function ImagePlaceholder({ product }) {
       >
         ARRIVING SOON
       </p>
-
       <p
         style={{
           fontFamily: "Special Elite",
@@ -212,8 +208,6 @@ function ImagePlaceholder({ product }) {
       >
         AUG 1 · 2026
       </p>
-
-      {/* Corner decorations */}
       {[
         {
           top: "16px",
@@ -250,13 +244,7 @@ function ImagePlaceholder({ product }) {
           }}
         />
       ))}
-
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-8px); }
-        }
-      `}</style>
+      <style>{`@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }`}</style>
     </div>
   );
 }
@@ -315,7 +303,6 @@ function Lightbox({ src, alt, onClose }) {
       >
         ✕
       </button>
-
       <img
         src={src}
         alt={alt}
@@ -327,7 +314,6 @@ function Lightbox({ src, alt, onClose }) {
           animation: "scaleIn 0.2s ease",
         }}
       />
-
       <p
         style={{
           position: "absolute",
@@ -340,7 +326,6 @@ function Lightbox({ src, alt, onClose }) {
       >
         ESC OR CLICK TO CLOSE
       </p>
-
       <style>{`
         @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0 } to { transform: scale(1); opacity: 1 } }
@@ -354,7 +339,10 @@ function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, totalItems } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedStatus, setAddedStatus] = useState("idle");
@@ -362,18 +350,84 @@ function ProductPage() {
   const [lightbox, setLightbox] = useState(false);
   const [imgErrors, setImgErrors] = useState({});
 
+  // ── FETCH FROM DYNAMODB ──
+  useEffect(() => {
+    fetch(
+      "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/inventory",
+    )
+      .then((res) => res.json())
+      .then((dynamoData) => {
+        const merged = STATIC_PRODUCTS.map((staticProduct) => {
+          const dynamic = Array.isArray(dynamoData)
+            ? dynamoData.find((d) => d.productId === staticProduct.number)
+            : null;
+          return {
+            ...staticProduct,
+            name: dynamic?.name || "",
+            price: dynamic?.price || "0",
+            description: dynamic?.description || "",
+            stock: dynamic?.sizes || {},
+          };
+        });
+        setProducts(merged);
+        setLoading(false);
+      })
+      .catch(() => {
+        setProducts(
+          STATIC_PRODUCTS.map((p) => ({
+            ...p,
+            name: "",
+            price: "0",
+            description: "",
+            stock: {},
+          })),
+        );
+        setLoading(false);
+      });
+  }, []);
+
   const product = products.find((p) => p.id === parseInt(id));
 
-  // Track which images failed to load
-  const handleImgError = (index) => {
-    setImgErrors((prev) => ({ ...prev, [index]: true }));
-  };
+  // Reset color when product changes
+  useEffect(() => {
+    setSelectedColor(product?.colors?.[0] || null);
+  }, [id, product]);
 
-  // Valid images — ones that loaded successfully
+  const handleImgError = (index) =>
+    setImgErrors((prev) => ({ ...prev, [index]: true }));
+
   const validImages = product?.images?.filter((_, i) => !imgErrors[i]) || [];
   const hasImages = validImages.length > 0;
-  const currentImg = validImages[activeImage] || null;
+  const currentImg =
+    validImages[Math.min(activeImage, validImages.length - 1)] || null;
 
+  // ── LOADING ──
+  if (loading) {
+    return (
+      <div
+        style={{
+          background: "#0A0A0A",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "Special Elite",
+            fontSize: "9px",
+            letterSpacing: "6px",
+            color: "rgba(245,240,232,0.15)",
+          }}
+        >
+          LOADING...
+        </p>
+      </div>
+    );
+  }
+
+  // ── NOT FOUND ──
   if (!product) {
     return (
       <div
@@ -432,16 +486,15 @@ function ProductPage() {
       setTimeout(() => setSizeError(false), 2000);
       return;
     }
-    addToCart(product, selectedSize, quantity);
+    addToCart(product, selectedSize, quantity, selectedColor?.name || null);
     setAddedStatus("added");
     setTimeout(() => setAddedStatus("idle"), 2000);
   };
 
   return (
     <div
-      style={{ background: "#0A0A0A", minHeight: "100vh", paddingTop: "70px" }}
+      style={{ background: "#0A0A0A", minHeight: "100vh", paddingTop: "102px" }}
     >
-      {/* Lightbox */}
       {lightbox && currentImg && (
         <Lightbox
           src={currentImg}
@@ -510,7 +563,6 @@ function ProductPage() {
               }}
               onClick={() => hasImages && setLightbox(true)}
             >
-              {/* Hidden images to detect load errors */}
               {product.images.map((src, i) => (
                 <img
                   key={i}
@@ -531,7 +583,8 @@ function ProductPage() {
                       height: "100%",
                       objectFit: "contain",
                       padding: "32px",
-                      transition: "transform 0.4s ease",
+                      transition: "transform 0.4s ease, filter 0.4s ease",
+                      filter: selectedColor?.filter || "none",
                     }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.transform = "scale(1.03)")
@@ -540,8 +593,6 @@ function ProductPage() {
                       (e.currentTarget.style.transform = "scale(1)")
                     }
                   />
-
-                  {/* Zoom hint */}
                   <div
                     style={{
                       position: "absolute",
@@ -641,6 +692,8 @@ function ProductPage() {
                         width: "100%",
                         height: "100%",
                         objectFit: "contain",
+                        filter: selectedColor?.filter || "none",
+                        transition: "filter 0.4s ease",
                       }}
                     />
                   </button>
@@ -690,26 +743,27 @@ function ProductPage() {
               </p>
             </div>
 
-            {/* Divider */}
             <div
               style={{ height: "1px", background: "rgba(255,255,255,0.06)" }}
             />
 
             {/* Description */}
             <div>
-              <p
-                style={{
-                  fontFamily: "Special Elite",
-                  fontSize: "14px",
-                  letterSpacing: "0.5px",
-                  color: "rgba(245,240,232,0.45)",
-                  lineHeight: 1.8,
-                  fontStyle: "italic",
-                  marginBottom: "16px",
-                }}
-              >
-                "{product.description}"
-              </p>
+              {product.description && (
+                <p
+                  style={{
+                    fontFamily: "Special Elite",
+                    fontSize: "14px",
+                    letterSpacing: "0.5px",
+                    color: "rgba(245,240,232,0.45)",
+                    lineHeight: 1.8,
+                    fontStyle: "italic",
+                    marginBottom: "16px",
+                  }}
+                >
+                  "{product.description}"
+                </p>
+              )}
               <p
                 style={{
                   fontFamily: "Special Elite",
@@ -723,10 +777,83 @@ function ProductPage() {
               </p>
             </div>
 
-            {/* Divider */}
             <div
               style={{ height: "1px", background: "rgba(255,255,255,0.06)" }}
             />
+
+            {/* Color selector */}
+            {product.colors && (
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "Special Elite",
+                      fontSize: "8px",
+                      letterSpacing: "4px",
+                      color: "rgba(245,240,232,0.3)",
+                    }}
+                  >
+                    COLOR
+                  </p>
+                  {selectedColor && (
+                    <p
+                      style={{
+                        fontFamily: "Special Elite",
+                        fontSize: "9px",
+                        letterSpacing: "3px",
+                        color: "rgba(245,240,232,0.5)",
+                      }}
+                    >
+                      {selectedColor.name}
+                    </p>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {product.colors.map((color) => {
+                    const isSelected = selectedColor?.name === color.name;
+                    return (
+                      <button
+                        key={color.name}
+                        onClick={() => setSelectedColor(color)}
+                        title={color.name}
+                        style={{
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "50%",
+                          background: color.hex,
+                          border: isSelected
+                            ? "2px solid #F5F0E8"
+                            : "2px solid transparent",
+                          cursor: "pointer",
+                          outline: isSelected
+                            ? "1px solid rgba(245,240,232,0.5)"
+                            : "1px solid rgba(255,255,255,0.1)",
+                          outlineOffset: "2px",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected)
+                            e.currentTarget.style.outline =
+                              "1px solid rgba(245,240,232,0.4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected)
+                            e.currentTarget.style.outline =
+                              "1px solid rgba(255,255,255,0.1)";
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Size selector */}
             <div>
@@ -772,7 +899,6 @@ function ProductPage() {
                   SIZE GUIDE
                 </button>
               </div>
-
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                 {product.sizes.map((size) => {
                   const isSelected = selectedSize === size;
@@ -909,7 +1035,6 @@ function ProductPage() {
               </div>
             </div>
 
-            {/* Divider */}
             <div
               style={{ height: "1px", background: "rgba(255,255,255,0.06)" }}
             />
@@ -1013,10 +1138,7 @@ function ProductPage() {
 
       <style>{`
         @media (max-width: 768px) {
-          .product-grid {
-            grid-template-columns: 1fr !important;
-            gap: 40px !important;
-          }
+          .product-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
         }
       `}</style>
     </div>

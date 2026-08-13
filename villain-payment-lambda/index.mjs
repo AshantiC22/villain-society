@@ -18,19 +18,22 @@ export const handler = async (event) => {
   }
 
   try {
+    // ── PARSE BODY ──
     const body = JSON.parse(event.body);
-    const { amount, currency = "usd", items, shipping } = body;
+    console.log("Full body received:", JSON.stringify(body));
 
-    // Create payment intent
+    const { amount, currency = "usd", items = [], shipping = {} } = body;
+    console.log("Shipping received:", JSON.stringify(shipping));
+    console.log("Amount received:", amount);
+
+    // ── CREATE PAYMENT INTENT ──
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
       currency,
-      metadata: {
-        items: JSON.stringify(items),
-      },
+      metadata: { items: JSON.stringify(items) },
     });
 
-    // Save order to DynamoDB
+    // ── SAVE ORDER TO DYNAMODB ──
     await dynamo.send(
       new PutItemCommand({
         TableName: "villain-orders",
@@ -40,13 +43,13 @@ export const handler = async (event) => {
           amount: { N: amount.toString() },
           currency: { S: currency },
           items: { S: JSON.stringify(items) },
-          shipping: { S: JSON.stringify(shipping || {}) },
+          shipping: { S: JSON.stringify(shipping) },
           createdAt: { S: new Date().toISOString() },
         },
       }),
     );
 
-    // Build items list for email
+    // ── BUILD ITEMS LIST ──
     const itemsList = items
       .map(
         (item) =>
@@ -54,25 +57,20 @@ export const handler = async (event) => {
       )
       .join("\n");
 
-    // Send confirmation email to customer
-    if (shipping?.email) {
+    // ── SEND CUSTOMER CONFIRMATION EMAIL ──
+    if (shipping.email) {
       await ses.send(
         new SendEmailCommand({
           Source: "ashanticocroft23@gmail.com",
-          Destination: {
-            ToAddresses: [shipping.email],
-          },
+          Destination: { ToAddresses: [shipping.email] },
           Message: {
-            Subject: {
-              Data: "Your Villain Culture Order is Confirmed 🖤",
-            },
+            Subject: { Data: "Your Villain Culture Order is Confirmed" },
             Body: {
               Text: {
                 Data: `
-VILLAIN CULTURE
-ORDER CONFIRMED
+VILLAIN CULTURE — ORDER CONFIRMED
 
-Hey ${shipping.name},
+Hey ${shipping.name || "Villain"},
 
 Your order has been received and is being processed.
 
@@ -81,16 +79,16 @@ ORDER ID: ${paymentIntent.id}
 ITEMS ORDERED:
 ${itemsList}
 
-TOTAL: $${amount.toFixed(2)}
+TOTAL: $${parseFloat(amount).toFixed(2)}
 
 SHIPPING TO:
-${shipping.name}
-${shipping.address}
-${shipping.city}, ${shipping.state} ${shipping.zip}
+${shipping.name || ""}
+${shipping.address || ""}
+${shipping.city || ""}, ${shipping.state || ""} ${shipping.zip || ""}
 
 WHAT HAPPENS NEXT:
-- Your order will be processed within 1-2 business days
-- Shipping takes 3-5 business days
+- Order processed within 1-2 business days
+- Shipping takes 3-5 business days via UPS or FedEx
 - You will receive a tracking number via email
 
 Thank you for being part of Villain World.
@@ -98,7 +96,7 @@ Built for the ones who never fit.
 
 VILLAIN CULTURE
 vllnculture.com
-              `,
+              `.trim(),
               },
             },
           },
@@ -106,42 +104,41 @@ vllnculture.com
       );
     }
 
-    // Send notification email to you
+    // ── SEND ORDER NOTIFICATION TO YOU ──
     await ses.send(
       new SendEmailCommand({
         Source: "ashanticocroft23@gmail.com",
-        Destination: {
-          ToAddresses: ["ashanticocroft23@gmail.com"],
-        },
+        Destination: { ToAddresses: ["ashanticocroft23@gmail.com"] },
         Message: {
-          Subject: {
-            Data: "🔥 New Villain Culture Order!",
-          },
+          Subject: { Data: "New Villain Culture Order!" },
           Body: {
             Text: {
               Data: `
 New order on vllnculture.com!
 
 ORDER ID: ${paymentIntent.id}
-AMOUNT: $${amount.toFixed(2)}
+AMOUNT: $${parseFloat(amount).toFixed(2)}
 
 CUSTOMER:
-${shipping?.name || "Unknown"}
-${shipping?.email || "Unknown"}
-${shipping?.address || ""}
-${shipping?.city || ""}, ${shipping?.state || ""} ${shipping?.zip || ""}
+Name:    ${shipping.name || "Not provided"}
+Email:   ${shipping.email || "Not provided"}
+Address: ${shipping.address || "Not provided"}
+City:    ${shipping.city || "Not provided"}
+State:   ${shipping.state || "Not provided"}
+ZIP:     ${shipping.zip || "Not provided"}
 
 ITEMS:
 ${itemsList}
 
 Time: ${new Date().toLocaleString()}
-            `,
+            `.trim(),
             },
           },
         },
       }),
     );
 
+    // ── RETURN SUCCESS ──
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
@@ -151,7 +148,7 @@ Time: ${new Date().toLocaleString()}
       }),
     };
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Lambda error:", error);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
