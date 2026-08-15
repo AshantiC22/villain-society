@@ -113,21 +113,42 @@ function FormInput({
   value,
   onChange,
   placeholder,
+  optional = false,
 }) {
   return (
     <div style={{ marginBottom: "20px" }}>
-      <label
+      <div
         style={{
-          fontFamily: F.body,
-          fontSize: "8px",
-          letterSpacing: "4px",
-          color: C.textLow,
-          display: "block",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: "8px",
         }}
       >
-        {label}
-      </label>
+        <label
+          style={{
+            fontFamily: F.body,
+            fontSize: "8px",
+            letterSpacing: "4px",
+            color: C.textLow,
+            display: "block",
+          }}
+        >
+          {label}
+        </label>
+        {optional && (
+          <span
+            style={{
+              fontFamily: F.body,
+              fontSize: "7px",
+              letterSpacing: "2px",
+              color: "rgba(245,240,232,0.1)",
+            }}
+          >
+            OPTIONAL
+          </span>
+        )}
+      </div>
       <input
         type={type}
         name={name}
@@ -155,6 +176,144 @@ function FormInput({
   );
 }
 
+// ── FORM SELECT ──
+function FormSelect({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  optional = false,
+}) {
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "8px",
+        }}
+      >
+        <label
+          style={{
+            fontFamily: F.body,
+            fontSize: "8px",
+            letterSpacing: "4px",
+            color: C.textLow,
+            display: "block",
+          }}
+        >
+          {label}
+        </label>
+        {optional && (
+          <span
+            style={{
+              fontFamily: F.body,
+              fontSize: "7px",
+              letterSpacing: "2px",
+              color: "rgba(245,240,232,0.1)",
+            }}
+          >
+            OPTIONAL
+          </span>
+        )}
+      </div>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        style={{
+          width: "100%",
+          background: "#0f0f0f",
+          border: `1px solid ${C.border}`,
+          borderRadius: "4px",
+          padding: "12px 16px",
+          color: value ? C.text : C.textLow,
+          fontFamily: F.body,
+          fontSize: "13px",
+          letterSpacing: "1px",
+          outline: "none",
+          transition: "border-color 0.2s ease",
+          boxSizing: "border-box",
+          cursor: "pointer",
+          appearance: "none",
+          WebkitAppearance: "none",
+        }}
+        onFocus={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.2)")}
+        onBlur={(e) => (e.target.style.borderColor = C.border)}
+      >
+        {options.map((opt) => (
+          <option
+            key={opt.value}
+            value={opt.value}
+            style={{ background: "#111111", color: C.text }}
+          >
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+// ── US STATES ──
+const US_STATES = [
+  { value: "", label: "Select state..." },
+  { value: "AL", label: "Alabama" },
+  { value: "AK", label: "Alaska" },
+  { value: "AZ", label: "Arizona" },
+  { value: "AR", label: "Arkansas" },
+  { value: "CA", label: "California" },
+  { value: "CO", label: "Colorado" },
+  { value: "CT", label: "Connecticut" },
+  { value: "DE", label: "Delaware" },
+  { value: "FL", label: "Florida" },
+  { value: "GA", label: "Georgia" },
+  { value: "HI", label: "Hawaii" },
+  { value: "ID", label: "Idaho" },
+  { value: "IL", label: "Illinois" },
+  { value: "IN", label: "Indiana" },
+  { value: "IA", label: "Iowa" },
+  { value: "KS", label: "Kansas" },
+  { value: "KY", label: "Kentucky" },
+  { value: "LA", label: "Louisiana" },
+  { value: "ME", label: "Maine" },
+  { value: "MD", label: "Maryland" },
+  { value: "MA", label: "Massachusetts" },
+  { value: "MI", label: "Michigan" },
+  { value: "MN", label: "Minnesota" },
+  { value: "MS", label: "Mississippi" },
+  { value: "MO", label: "Missouri" },
+  { value: "MT", label: "Montana" },
+  { value: "NE", label: "Nebraska" },
+  { value: "NV", label: "Nevada" },
+  { value: "NH", label: "New Hampshire" },
+  { value: "NJ", label: "New Jersey" },
+  { value: "NM", label: "New Mexico" },
+  { value: "NY", label: "New York" },
+  { value: "NC", label: "North Carolina" },
+  { value: "ND", label: "North Dakota" },
+  { value: "OH", label: "Ohio" },
+  { value: "OK", label: "Oklahoma" },
+  { value: "OR", label: "Oregon" },
+  { value: "PA", label: "Pennsylvania" },
+  { value: "RI", label: "Rhode Island" },
+  { value: "SC", label: "South Carolina" },
+  { value: "SD", label: "South Dakota" },
+  { value: "TN", label: "Tennessee" },
+  { value: "TX", label: "Texas" },
+  { value: "UT", label: "Utah" },
+  { value: "VT", label: "Vermont" },
+  { value: "VA", label: "Virginia" },
+  { value: "WA", label: "Washington" },
+  { value: "WV", label: "West Virginia" },
+  { value: "WI", label: "Wisconsin" },
+  { value: "WY", label: "Wyoming" },
+  { value: "DC", label: "Washington DC" },
+  { value: "PR", label: "Puerto Rico" },
+];
+
 // ── CHECKOUT FORM ──
 function CheckoutForm({ onSuccess }) {
   const stripe = useStripe();
@@ -165,10 +324,13 @@ function CheckoutForm({ onSuccess }) {
   const [shipping, setShipping] = useState({
     name: "",
     email: "",
+    phone: "",
     address: "",
+    address2: "",
     city: "",
     state: "",
     zip: "",
+    country: "US",
   });
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -187,10 +349,19 @@ function CheckoutForm({ onSuccess }) {
     shipping.state &&
     shipping.zip;
 
+  // ── BUILD FULL ADDRESS FOR DISPLAY ──
+  const fullAddress = [
+    shipping.address,
+    shipping.address2,
+    `${shipping.city}, ${shipping.state} ${shipping.zip}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   const handleSubmit = async () => {
     if (!stripe || !elements) return;
     if (!isShippingValid) {
-      setErrorMessage("Please fill in all fields");
+      setErrorMessage("Please fill in all required fields");
       return;
     }
 
@@ -225,19 +396,20 @@ function CheckoutForm({ onSuccess }) {
         return;
       }
 
-      const { clientSecret } = data;
-
-      const result = await stripe.confirmCardPayment(clientSecret, {
+      const result = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: {
             name: shipping.name,
             email: shipping.email,
+            phone: shipping.phone,
             address: {
               line1: shipping.address,
+              line2: shipping.address2,
               city: shipping.city,
               state: shipping.state,
               postal_code: shipping.zip,
+              country: shipping.country,
             },
           },
         },
@@ -316,7 +488,7 @@ function CheckoutForm({ onSuccess }) {
         >
           {/* LEFT — Forms */}
           <div>
-            {/* Step 0 — Shipping */}
+            {/* ── STEP 0 — SHIPPING ── */}
             {step === 0 && (
               <div>
                 <div
@@ -345,7 +517,21 @@ function CheckoutForm({ onSuccess }) {
                       SHIPPING INFORMATION
                     </p>
                   </div>
+
                   <div style={{ padding: "24px" }}>
+                    {/* Contact */}
+                    <p
+                      style={{
+                        fontFamily: F.body,
+                        fontSize: "7px",
+                        letterSpacing: "4px",
+                        color: "rgba(245,240,232,0.1)",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      CONTACT
+                    </p>
+
                     <FormInput
                       label="FULL NAME"
                       name="name"
@@ -353,14 +539,55 @@ function CheckoutForm({ onSuccess }) {
                       onChange={handleChange}
                       placeholder="Your full name"
                     />
-                    <FormInput
-                      label="EMAIL ADDRESS"
-                      name="email"
-                      type="email"
-                      value={shipping.email}
-                      onChange={handleChange}
-                      placeholder="your@email.com"
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "12px",
+                      }}
+                    >
+                      <FormInput
+                        label="EMAIL ADDRESS"
+                        name="email"
+                        type="email"
+                        value={shipping.email}
+                        onChange={handleChange}
+                        placeholder="your@email.com"
+                      />
+                      <FormInput
+                        label="PHONE NUMBER"
+                        name="phone"
+                        type="tel"
+                        value={shipping.phone}
+                        onChange={handleChange}
+                        placeholder="(601) 555-0100"
+                        optional
+                      />
+                    </div>
+
+                    {/* Divider */}
+                    <div
+                      style={{
+                        height: "1px",
+                        background: C.border,
+                        margin: "8px 0 24px",
+                      }}
                     />
+
+                    {/* Address */}
+                    <p
+                      style={{
+                        fontFamily: F.body,
+                        fontSize: "7px",
+                        letterSpacing: "4px",
+                        color: "rgba(245,240,232,0.1)",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      ADDRESS
+                    </p>
+
                     <FormInput
                       label="STREET ADDRESS"
                       name="address"
@@ -368,10 +595,20 @@ function CheckoutForm({ onSuccess }) {
                       onChange={handleChange}
                       placeholder="123 Villain Street"
                     />
+
+                    <FormInput
+                      label="APARTMENT, SUITE, UNIT, PO BOX"
+                      name="address2"
+                      value={shipping.address2}
+                      onChange={handleChange}
+                      placeholder="Apt 4B, Suite 100, PO Box 1234, Unit 2..."
+                      optional
+                    />
+
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 80px 100px",
+                        gridTemplateColumns: "1fr 1fr",
                         gap: "12px",
                       }}
                     >
@@ -383,30 +620,83 @@ function CheckoutForm({ onSuccess }) {
                         placeholder="City"
                       />
                       <FormInput
-                        label="STATE"
-                        name="state"
-                        value={shipping.state}
-                        onChange={handleChange}
-                        placeholder="MS"
-                      />
-                      <FormInput
-                        label="ZIP"
+                        label="ZIP CODE"
                         name="zip"
                         value={shipping.zip}
                         onChange={handleChange}
                         placeholder="39401"
                       />
                     </div>
+
+                    <FormSelect
+                      label="STATE"
+                      name="state"
+                      value={shipping.state}
+                      onChange={handleChange}
+                      options={US_STATES}
+                    />
+
+                    {/* Delivery note */}
+                    <div
+                      style={{
+                        background: "rgba(245,240,232,0.02)",
+                        border: `1px solid ${C.border}`,
+                        borderRadius: "4px",
+                        padding: "14px 16px",
+                        marginTop: "4px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: F.body,
+                          fontSize: "8px",
+                          letterSpacing: "2px",
+                          color: C.textLow,
+                          lineHeight: 1.8,
+                        }}
+                      >
+                        · PO Boxes accepted — standard delivery only
+                        <br />
+                        · Apartment number required for accurate delivery
+                        <br />
+                        · Ships to all 50 states + DC + Puerto Rico
+                        <br />· Tracking number sent via email after shipment
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                {/* Error */}
+                {errorMessage && (
+                  <div
+                    style={{
+                      background: "rgba(204,0,0,0.06)",
+                      border: `1px solid rgba(204,0,0,0.3)`,
+                      borderRadius: "4px",
+                      padding: "12px 16px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: F.body,
+                        fontSize: "11px",
+                        letterSpacing: "1px",
+                        color: C.red,
+                      }}
+                    >
+                      {errorMessage}
+                    </p>
+                  </div>
+                )}
 
                 <button
                   onClick={() => {
                     if (isShippingValid) {
                       setStep(1);
-                    } else {
-                      setErrorMessage("Please fill in all fields");
-                    }
+                      setErrorMessage("");
+                    } else
+                      setErrorMessage("Please fill in all required fields");
                   }}
                   style={{
                     fontFamily: F.body,
@@ -433,7 +723,7 @@ function CheckoutForm({ onSuccess }) {
               </div>
             )}
 
-            {/* Step 1 — Payment */}
+            {/* ── STEP 1 — PAYMENT ── */}
             {step === 1 && (
               <div>
                 {/* Shipping summary */}
@@ -444,53 +734,90 @@ function CheckoutForm({ onSuccess }) {
                     borderRadius: "4px",
                     padding: "16px 20px",
                     marginBottom: "16px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
                   }}
                 >
-                  <div>
-                    <p
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: F.body,
+                          fontSize: "8px",
+                          letterSpacing: "4px",
+                          color: C.textLow,
+                          marginBottom: "6px",
+                        }}
+                      >
+                        SHIPPING TO
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: F.body,
+                          fontSize: "12px",
+                          letterSpacing: "1px",
+                          color: C.textMid,
+                          marginBottom: "2px",
+                        }}
+                      >
+                        {shipping.name}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: F.body,
+                          fontSize: "11px",
+                          letterSpacing: "0.5px",
+                          color: C.textLow,
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {shipping.address}
+                        {shipping.address2 ? `, ${shipping.address2}` : ""}
+                        <br />
+                        {shipping.city}, {shipping.state} {shipping.zip}
+                      </p>
+                      {shipping.phone && (
+                        <p
+                          style={{
+                            fontFamily: F.body,
+                            fontSize: "10px",
+                            letterSpacing: "1px",
+                            color: C.textLow,
+                            marginTop: "2px",
+                          }}
+                        >
+                          {shipping.phone}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setStep(0)}
                       style={{
                         fontFamily: F.body,
                         fontSize: "8px",
-                        letterSpacing: "4px",
+                        letterSpacing: "3px",
                         color: C.textLow,
-                        marginBottom: "4px",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        flexShrink: 0,
+                        paddingLeft: "16px",
                       }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = C.text)
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = C.textLow)
+                      }
                     >
-                      SHIPPING TO
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: F.body,
-                        fontSize: "12px",
-                        letterSpacing: "1px",
-                        color: C.textMid,
-                      }}
-                    >
-                      {shipping.name} · {shipping.city}, {shipping.state}
-                    </p>
+                      EDIT
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setStep(0)}
-                    style={{
-                      fontFamily: F.body,
-                      fontSize: "8px",
-                      letterSpacing: "3px",
-                      color: C.textLow,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = C.textLow)
-                    }
-                  >
-                    EDIT
-                  </button>
                 </div>
 
                 {/* Card input */}
@@ -546,25 +873,16 @@ function CheckoutForm({ onSuccess }) {
                         }}
                       />
                     </div>
-
-                    <div
+                    <p
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
+                        fontFamily: F.body,
+                        fontSize: "8px",
+                        letterSpacing: "2px",
+                        color: C.textLow,
                       }}
                     >
-                      <p
-                        style={{
-                          fontFamily: F.body,
-                          fontSize: "8px",
-                          letterSpacing: "2px",
-                          color: C.textLow,
-                        }}
-                      >
-                        🔒 Secured by Stripe · 256-bit SSL encryption
-                      </p>
-                    </div>
+                      🔒 Secured by Stripe · 256-bit SSL encryption
+                    </p>
                   </div>
                 </div>
 
