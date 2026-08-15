@@ -87,7 +87,6 @@ const STATIC_PRODUCTS = [
   },
 ];
 
-// ── CONSTANTS ──
 const FILTERS = ["ALL", "SIGNATURE DROP", "LIMITED", "CORE PIECE", "ACCESSORY"];
 
 const TAG_STYLES = {
@@ -113,7 +112,18 @@ const TAG_STYLES = {
   },
 };
 
-// ── FLOATING PARTICLES ──
+// ── DETECT MOBILE ──
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
+
+// ── FLOATING PARTICLES — desktop only ──
 function Particles() {
   return (
     <div
@@ -156,8 +166,415 @@ function Particles() {
   );
 }
 
-// ── PRODUCT CARD ──
-function ProductCard({ product, index, onClick }) {
+// ── MOBILE CARD — full width editorial ──
+function MobileCard({ product, index, onClick }) {
+  const [pressed, setPressed] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const tagStyle = TAG_STYLES[product.tag] || TAG_STYLES["CORE PIECE"];
+  const isEven = index % 2 === 0;
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        marginBottom: "2px",
+        overflow: "hidden",
+      }}
+    >
+      {/* Main card */}
+      <div
+        onTouchStart={() => setPressed(true)}
+        onTouchEnd={() => setPressed(false)}
+        onClick={() => {
+          if (!revealed) {
+            setRevealed(true);
+            return;
+          }
+          onClick(product);
+        }}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "72vw",
+          maxHeight: "380px",
+          background:
+            "linear-gradient(145deg, rgba(12,6,2,0.98), rgba(6,3,1,0.99))",
+          overflow: "hidden",
+          cursor: "pointer",
+          transform: pressed ? "scale(0.985)" : "scale(1)",
+          transition: "transform 0.15s ease",
+          border: `1px solid ${revealed ? tagStyle.border : "rgba(200,110,15,0.08)"}`,
+        }}
+      >
+        {/* Background roman numeral */}
+        <p
+          style={{
+            position: "absolute",
+            fontFamily: "Metal Mania",
+            fontSize: "clamp(80px, 28vw, 160px)",
+            color: revealed
+              ? "rgba(200,110,15,0.06)"
+              : "rgba(255,255,255,0.03)",
+            lineHeight: 1,
+            userSelect: "none",
+            pointerEvents: "none",
+            bottom: "-10px",
+            right: isEven ? "-10px" : "auto",
+            left: isEven ? "auto" : "-10px",
+            letterSpacing: "-4px",
+            zIndex: 1,
+          }}
+        >
+          {product.roman}
+        </p>
+
+        {/* Top accent line */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "2px",
+            background: `linear-gradient(to right, transparent, ${tagStyle.color}, transparent)`,
+            opacity: revealed ? 0.9 : 0.2,
+            zIndex: 4,
+            transition: "opacity 0.4s ease",
+          }}
+        />
+
+        {/* Image */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 2 }}>
+          {product.images?.[0] && !imgError ? (
+            <>
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                onError={() => setImgError(true)}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  padding: "20px",
+                  transform: pressed ? "scale(1.04)" : "scale(1)",
+                  transition: "transform 0.3s ease",
+                  filter: revealed ? "brightness(1.05)" : "brightness(0.7)",
+                }}
+              />
+              {/* Gradient overlay */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "linear-gradient(to bottom, rgba(6,3,1,0.1) 0%, transparent 30%, transparent 50%, rgba(6,3,1,0.95) 100%)",
+                }}
+              />
+            </>
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "Metal Mania",
+                  fontSize: "11px",
+                  letterSpacing: "4px",
+                  color: "rgba(200,110,15,0.3)",
+                }}
+              >
+                ARRIVING SOON
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Top left — number */}
+        <div
+          style={{ position: "absolute", top: "16px", left: "16px", zIndex: 5 }}
+        >
+          <p
+            style={{
+              fontFamily: "Special Elite",
+              fontSize: "8px",
+              letterSpacing: "4px",
+              color: "rgba(200,110,15,0.6)",
+            }}
+          >
+            #{product.number}
+          </p>
+        </div>
+
+        {/* Top right — tag */}
+        <div
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            zIndex: 5,
+            border: `1px solid ${tagStyle.border}`,
+            background: tagStyle.bg,
+            padding: "4px 10px",
+            borderRadius: "2px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Special Elite",
+              fontSize: "7px",
+              letterSpacing: "2px",
+              color: tagStyle.color,
+            }}
+          >
+            {product.tag}
+          </p>
+        </div>
+
+        {/* Bottom info */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: "20px 16px 16px",
+            zIndex: 5,
+            background:
+              "linear-gradient(to top, rgba(6,3,1,0.98) 0%, transparent 100%)",
+          }}
+        >
+          {!revealed ? (
+            // BEFORE TAP
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontFamily: "Special Elite",
+                    fontSize: "8px",
+                    letterSpacing: "3px",
+                    color: "rgba(200,110,15,0.5)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {product.subtitle}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "Metal Mania",
+                    fontSize: "clamp(16px, 4.5vw, 22px)",
+                    letterSpacing: "2px",
+                    color: "rgba(245,240,232,0.9)",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {product.name}
+                </p>
+              </div>
+              <div
+                style={{
+                  textAlign: "right",
+                  flexShrink: 0,
+                  paddingLeft: "12px",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "Metal Mania",
+                    fontSize: "20px",
+                    color: tagStyle.color,
+                    letterSpacing: "1px",
+                  }}
+                >
+                  ${product.price}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "Special Elite",
+                    fontSize: "7px",
+                    letterSpacing: "2px",
+                    color: "rgba(245,240,232,0.2)",
+                    marginTop: "4px",
+                    animation: "tapPulse 2s infinite",
+                  }}
+                >
+                  TAP TO REVEAL ↑
+                </p>
+              </div>
+            </div>
+          ) : (
+            // AFTER TAP — revealed info
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: "12px",
+                }}
+              >
+                <div style={{ flex: 1, paddingRight: "12px" }}>
+                  <p
+                    style={{
+                      fontFamily: "Special Elite",
+                      fontSize: "8px",
+                      letterSpacing: "3px",
+                      color: tagStyle.color,
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {product.subtitle}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "Metal Mania",
+                      fontSize: "clamp(16px, 4.5vw, 22px)",
+                      letterSpacing: "2px",
+                      color: "#F5F0E8",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {product.name}
+                  </p>
+                  {product.description && (
+                    <p
+                      style={{
+                        fontFamily: "Special Elite",
+                        fontSize: "10px",
+                        letterSpacing: "0.5px",
+                        color: "rgba(245,240,232,0.4)",
+                        marginTop: "6px",
+                        lineHeight: 1.6,
+                        fontStyle: "italic",
+                      }}
+                    >
+                      "{product.description}"
+                    </p>
+                  )}
+                </div>
+                <p
+                  style={{
+                    fontFamily: "Metal Mania",
+                    fontSize: "22px",
+                    color: tagStyle.color,
+                    letterSpacing: "1px",
+                    flexShrink: 0,
+                  }}
+                >
+                  ${product.price}
+                </p>
+              </div>
+
+              {/* Sizes */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "6px",
+                  marginBottom: "12px",
+                  flexWrap: "wrap",
+                }}
+              >
+                {product.sizes.map((size) => (
+                  <span
+                    key={size}
+                    style={{
+                      fontFamily: "Special Elite",
+                      fontSize: "8px",
+                      letterSpacing: "1px",
+                      padding: "4px 10px",
+                      border: `1px solid ${tagStyle.border}`,
+                      color: tagStyle.color,
+                      background: tagStyle.bg,
+                      borderRadius: "2px",
+                    }}
+                  >
+                    {size}
+                  </span>
+                ))}
+              </div>
+
+              {/* CTA button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(product);
+                }}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  background: `linear-gradient(135deg, ${tagStyle.color}, rgba(180,80,5,0.95))`,
+                  border: "none",
+                  borderRadius: "2px",
+                  fontFamily: "Special Elite",
+                  fontSize: "10px",
+                  letterSpacing: "5px",
+                  color: "#0A0A0A",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                VIEW PRODUCT →
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Close button when revealed */}
+        {revealed && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setRevealed(false);
+            }}
+            style={{
+              position: "absolute",
+              top: "12px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "rgba(0,0,0,0.6)",
+              border: `1px solid ${tagStyle.border}`,
+              borderRadius: "20px",
+              padding: "4px 16px",
+              fontFamily: "Special Elite",
+              fontSize: "7px",
+              letterSpacing: "3px",
+              color: tagStyle.color,
+              cursor: "pointer",
+              zIndex: 10,
+            }}
+          >
+            CLOSE ✕
+          </button>
+        )}
+      </div>
+
+      {/* Bottom rule */}
+      <div
+        style={{
+          height: "1px",
+          background: `linear-gradient(to right, transparent, ${tagStyle.border}, transparent)`,
+          opacity: 0.3,
+        }}
+      />
+    </div>
+  );
+}
+
+// ── DESKTOP CARD — original flip card ──
+function DesktopCard({ product, index, onClick }) {
   const [flipped, setFlipped] = useState(false);
   const [hovered, setHovered] = useState(false);
   const tagStyle = TAG_STYLES[product.tag] || TAG_STYLES["CORE PIECE"];
@@ -192,7 +609,7 @@ function ProductCard({ product, index, onClick }) {
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* ── FRONT ── */}
+        {/* FRONT */}
         <div
           style={{
             position: "absolute",
@@ -396,7 +813,7 @@ function ProductCard({ product, index, onClick }) {
           </div>
         </div>
 
-        {/* ── BACK ── */}
+        {/* BACK */}
         <div
           style={{
             position: "absolute",
@@ -467,7 +884,6 @@ function ProductCard({ product, index, onClick }) {
                 opacity: 0.5,
               }}
             />
-
             {product.description && (
               <p
                 style={{
@@ -483,7 +899,6 @@ function ProductCard({ product, index, onClick }) {
                 "{product.description}"
               </p>
             )}
-
             <p
               style={{
                 fontFamily: "Special Elite",
@@ -591,6 +1006,7 @@ function ProductCard({ product, index, onClick }) {
 // ── MAIN COLLECTIONS ──
 function Collections() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("ALL");
@@ -601,7 +1017,7 @@ function Collections() {
   const [modalStatus, setModalStatus] = useState("idle");
   const videoRef = useRef(null);
 
-  // ── FETCH PRODUCTS FROM DYNAMODB ──
+  // ── FETCH PRODUCTS ──
   useEffect(() => {
     fetch(
       "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/inventory",
@@ -637,7 +1053,7 @@ function Collections() {
       });
   }, []);
 
-  // ── FETCH WAITLIST COUNT ──
+  // ── FETCH WAITLIST ──
   useEffect(() => {
     fetch(
       "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/waitlist",
@@ -698,7 +1114,7 @@ function Collections() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            opacity: 0.35,
+            opacity: isMobile ? 0.2 : 0.35,
             filter: "saturate(0.6) brightness(0.7)",
           }}
         >
@@ -726,49 +1142,57 @@ function Collections() {
         }}
       />
 
-      {/* ── PARTICLES ── */}
-      <Particles />
+      {/* Desktop particles only */}
+      {!isMobile && <Particles />}
 
       {/* ── MAIN CONTENT ── */}
-      <div style={{ position: "relative", zIndex: 2, paddingTop: "80px" }}>
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          paddingTop: isMobile ? "52px" : "80px",
+        }}
+      >
         {/* ── HEADER ── */}
         <div
           style={{
             textAlign: "center",
-            padding: "80px 20px 60px",
+            padding: isMobile ? "40px 16px 32px" : "80px 20px 60px",
             position: "relative",
           }}
         >
-          <p
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              fontFamily: "Metal Mania",
-              fontSize: "clamp(80px, 15vw, 200px)",
-              color: "rgba(200,110,15,0.03)",
-              letterSpacing: "0.2em",
-              whiteSpace: "nowrap",
-              pointerEvents: "none",
-              userSelect: "none",
-              lineHeight: 1,
-            }}
-          >
-            VILLAIN
-          </p>
+          {!isMobile && (
+            <p
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontFamily: "Metal Mania",
+                fontSize: "clamp(80px, 15vw, 200px)",
+                color: "rgba(200,110,15,0.03)",
+                letterSpacing: "0.2em",
+                whiteSpace: "nowrap",
+                pointerEvents: "none",
+                userSelect: "none",
+                lineHeight: 1,
+              }}
+            >
+              VILLAIN
+            </p>
+          )}
 
           <div
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "12px",
-              marginBottom: "24px",
+              gap: "10px",
+              marginBottom: isMobile ? "16px" : "24px",
             }}
           >
             <div
               style={{
-                width: "40px",
+                width: isMobile ? "24px" : "40px",
                 height: "1px",
                 background: "rgba(200,110,15,0.4)",
               }}
@@ -776,16 +1200,16 @@ function Collections() {
             <p
               style={{
                 fontFamily: "Special Elite",
-                fontSize: "8px",
-                letterSpacing: "8px",
+                fontSize: isMobile ? "7px" : "8px",
+                letterSpacing: isMobile ? "4px" : "8px",
                 color: "rgba(200,110,15,0.6)",
               }}
             >
-              VILLAIN CULTURE · CHAPTER ONE
+              {isMobile ? "CHAPTER ONE" : "VILLAIN CULTURE · CHAPTER ONE"}
             </p>
             <div
               style={{
-                width: "40px",
+                width: isMobile ? "24px" : "40px",
                 height: "1px",
                 background: "rgba(200,110,15,0.4)",
               }}
@@ -796,8 +1220,10 @@ function Collections() {
             <h1
               style={{
                 fontFamily: "Metal Mania",
-                fontSize: "clamp(48px, 9vw, 110px)",
-                letterSpacing: "0.25em",
+                fontSize: isMobile
+                  ? "clamp(40px, 14vw, 72px)"
+                  : "clamp(48px, 9vw, 110px)",
+                letterSpacing: isMobile ? "0.15em" : "0.25em",
                 color: "rgba(245,240,232,0.06)",
                 lineHeight: 0.9,
                 WebkitTextStroke: "1px rgba(245,240,232,0.15)",
@@ -809,8 +1235,10 @@ function Collections() {
             <h1
               style={{
                 fontFamily: "Metal Mania",
-                fontSize: "clamp(48px, 9vw, 110px)",
-                letterSpacing: "0.25em",
+                fontSize: isMobile
+                  ? "clamp(40px, 14vw, 72px)"
+                  : "clamp(48px, 9vw, 110px)",
+                letterSpacing: isMobile ? "0.15em" : "0.25em",
                 color: "rgba(200,110,15,1)",
                 lineHeight: 0.9,
                 textShadow:
@@ -825,43 +1253,43 @@ function Collections() {
           <p
             style={{
               fontFamily: "Special Elite",
-              fontSize: "11px",
-              letterSpacing: "6px",
+              fontSize: isMobile ? "8px" : "11px",
+              letterSpacing: isMobile ? "4px" : "6px",
               color: "rgba(245,240,232,0.18)",
-              marginBottom: "32px",
-              marginTop: "16px",
+              marginBottom: isMobile ? "20px" : "32px",
+              marginTop: "12px",
             }}
           >
             BUILT FOR THE ONES WHO NEVER FIT
           </p>
 
           {/* Waitlist counter */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "16px",
-              marginBottom: "16px",
-            }}
-          >
+          {waitlistCount > 0 && (
             <div
               style={{
-                flex: 1,
-                maxWidth: "100px",
-                height: "1px",
-                background:
-                  "linear-gradient(to right, transparent, rgba(200,110,15,0.5))",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+                marginBottom: isMobile ? "20px" : "16px",
               }}
-            />
-            {waitlistCount > 0 ? (
+            >
+              <div
+                style={{
+                  flex: 1,
+                  maxWidth: isMobile ? "60px" : "100px",
+                  height: "1px",
+                  background:
+                    "linear-gradient(to right, transparent, rgba(200,110,15,0.5))",
+                }}
+              />
               <div
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
                 <div
                   style={{
-                    width: "6px",
-                    height: "6px",
+                    width: "5px",
+                    height: "5px",
                     borderRadius: "50%",
                     background: "rgba(200,110,15,0.9)",
                     boxShadow: "0 0 8px rgba(200,110,15,0.8)",
@@ -871,8 +1299,8 @@ function Collections() {
                 <p
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "9px",
-                    letterSpacing: "4px",
+                    fontSize: isMobile ? "8px" : "9px",
+                    letterSpacing: "3px",
                     color: "rgba(200,110,15,0.8)",
                     whiteSpace: "nowrap",
                   }}
@@ -880,46 +1308,31 @@ function Collections() {
                   {waitlistCount} VILLAINS WAITING
                 </p>
               </div>
-            ) : (
               <div
                 style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  background: "rgba(200,110,15,0.4)",
+                  flex: 1,
+                  maxWidth: isMobile ? "60px" : "100px",
+                  height: "1px",
+                  background:
+                    "linear-gradient(to left, transparent, rgba(200,110,15,0.5))",
                 }}
               />
-            )}
-            <div
-              style={{
-                flex: 1,
-                maxWidth: "100px",
-                height: "1px",
-                background:
-                  "linear-gradient(to left, transparent, rgba(200,110,15,0.5))",
-              }}
-            />
-          </div>
-
-          <p
-            style={{
-              fontFamily: "Special Elite",
-              fontSize: "9px",
-              letterSpacing: "4px",
-              color: "rgba(245,240,232,0.15)",
-              marginBottom: "40px",
-            }}
-          >
-            9 ARTIFACTS · TAP A CARD TO REVEAL
-          </p>
+            </div>
+          )}
 
           {/* Filter tabs */}
           <div
             style={{
               display: "flex",
-              flexWrap: "wrap",
-              gap: "8px",
+              flexWrap: "nowrap",
+              gap: "6px",
               justifyContent: "center",
+              overflowX: "auto",
+              paddingBottom: "8px",
+              paddingLeft: isMobile ? "16px" : "0",
+              paddingRight: isMobile ? "16px" : "0",
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
             }}
           >
             {FILTERS.map((filter) => {
@@ -930,10 +1343,10 @@ function Collections() {
                   onClick={() => setActiveFilter(filter)}
                   style={{
                     fontFamily: "Special Elite",
-                    fontSize: "8px",
-                    letterSpacing: "3px",
-                    padding: "8px 18px",
-                    borderRadius: "6px",
+                    fontSize: isMobile ? "7px" : "8px",
+                    letterSpacing: "2px",
+                    padding: isMobile ? "8px 12px" : "8px 18px",
+                    borderRadius: "2px",
                     border: `1px solid ${isActive ? "rgba(200,110,15,0.7)" : "rgba(245,240,232,0.08)"}`,
                     background: isActive
                       ? "rgba(200,110,15,0.12)"
@@ -943,31 +1356,22 @@ function Collections() {
                       : "rgba(245,240,232,0.3)",
                     cursor: "pointer",
                     transition: "all 0.25s ease",
+                    whiteSpace: "nowrap",
+                    flexShrink: 0,
                     backdropFilter: "blur(8px)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.borderColor =
-                        "rgba(200,110,15,0.3)";
-                      e.currentTarget.style.color = "rgba(245,240,232,0.6)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.borderColor =
-                        "rgba(245,240,232,0.08)";
-                      e.currentTarget.style.color = "rgba(245,240,232,0.3)";
-                    }
+                    WebkitTapHighlightColor: "transparent",
                   }}
                 >
-                  {filter}
+                  {isMobile && filter === "SIGNATURE DROP"
+                    ? "SIGNATURE"
+                    : filter}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* ── PRODUCT GRID ── */}
+        {/* ── PRODUCT GRID / FEED ── */}
         {loading ? (
           <div
             style={{
@@ -988,7 +1392,51 @@ function Collections() {
               LOADING...
             </p>
           </div>
+        ) : isMobile ? (
+          // ── MOBILE — vertical feed ──
+          <div style={{ padding: "0 0 100px 0" }}>
+            {/* Product count */}
+            <div
+              style={{
+                padding: "0 16px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "Special Elite",
+                  fontSize: "7px",
+                  letterSpacing: "3px",
+                  color: "rgba(245,240,232,0.15)",
+                }}
+              >
+                {filtered.length} ARTIFACTS
+              </p>
+              <p
+                style={{
+                  fontFamily: "Special Elite",
+                  fontSize: "7px",
+                  letterSpacing: "2px",
+                  color: "rgba(200,110,15,0.4)",
+                }}
+              >
+                TAP TO REVEAL
+              </p>
+            </div>
+
+            {filtered.map((product, index) => (
+              <MobileCard
+                key={product.id}
+                product={product}
+                index={index}
+                onClick={handleProductClick}
+              />
+            ))}
+          </div>
         ) : (
+          // ── DESKTOP — original grid ──
           <div
             style={{
               maxWidth: "1280px",
@@ -998,10 +1446,9 @@ function Collections() {
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: "24px",
             }}
-            className="collections-grid"
           >
             {filtered.map((product, index) => (
-              <ProductCard
+              <DesktopCard
                 key={product.id}
                 product={product}
                 index={index}
@@ -1035,12 +1482,14 @@ function Collections() {
                 "linear-gradient(145deg, rgba(14,8,3,0.99), rgba(8,4,1,0.99))",
               border: "1px solid rgba(200,110,15,0.3)",
               borderRadius: "20px",
-              padding: "40px",
+              padding: isMobile ? "28px 20px" : "40px",
               width: "100%",
               maxWidth: "500px",
               position: "relative",
               boxShadow:
                 "0 40px 100px rgba(0,0,0,0.9), 0 0 60px rgba(200,110,15,0.06)",
+              maxHeight: "90vh",
+              overflowY: "auto",
             }}
           >
             <div
@@ -1055,7 +1504,6 @@ function Collections() {
                 borderRadius: "20px 20px 0 0",
               }}
             />
-
             <button
               onClick={closeModal}
               style={{
@@ -1067,15 +1515,8 @@ function Collections() {
                 color: "rgba(245,240,232,0.25)",
                 cursor: "pointer",
                 fontSize: "20px",
-                transition: "color 0.2s",
                 fontFamily: "Special Elite",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "rgba(200,110,15,0.8)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "rgba(245,240,232,0.25)")
-              }
             >
               ✕
             </button>
@@ -1105,7 +1546,6 @@ function Collections() {
                     letterSpacing: "4px",
                     color: "rgba(200,110,15,1)",
                     marginBottom: "12px",
-                    textShadow: "0 0 30px rgba(200,110,15,0.4)",
                   }}
                 >
                   VILLAIN CONFIRMED
@@ -1195,6 +1635,7 @@ function Collections() {
                             : "rgba(245,240,232,0.35)",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
+                        WebkitTapHighlightColor: "transparent",
                       }}
                     >
                       {size}
@@ -1231,6 +1672,7 @@ function Collections() {
                     outline: "none",
                     marginBottom: "24px",
                     transition: "border-color 0.3s ease",
+                    boxSizing: "border-box",
                   }}
                   onFocus={(e) =>
                     (e.target.style.borderColor = "rgba(200,110,15,0.5)")
@@ -1258,16 +1700,7 @@ function Collections() {
                     transition: "all 0.3s ease",
                     boxShadow: "0 4px 24px rgba(200,110,15,0.25)",
                     opacity: modalStatus === "loading" ? 0.6 : 1,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow =
-                      "0 8px 40px rgba(200,110,15,0.5)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 24px rgba(200,110,15,0.25)";
-                    e.currentTarget.style.transform = "translateY(0)";
+                    WebkitTapHighlightColor: "transparent",
                   }}
                 >
                   {modalStatus === "loading" ? "JOINING..." : "JOIN WAITLIST"}
@@ -1279,10 +1712,10 @@ function Collections() {
       )}
 
       <style>{`
-        @keyframes dot-pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); box-shadow: 0 0 12px rgba(200,110,15,1); } }
+        @keyframes dot-pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
         @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.5; } }
-        @media (max-width: 900px) { .collections-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; } }
-        @media (max-width: 480px) { .collections-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; } }
+        @keyframes tapPulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+        .collections-feed::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
   );

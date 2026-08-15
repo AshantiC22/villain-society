@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -20,12 +20,22 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Footer";
 import AnnouncementBar from "./components/AnnouncementBar";
 
+// ── SCROLL TO TOP ON EVERY PAGE CHANGE ──
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   const [loading, setLoading] = useState(true);
 
   return (
     <CartProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <AnnouncementBar />
         {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
         <Navbar />
@@ -36,7 +46,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/products/:id" element={<ProductPage />} />
-          <Route path="/size-guide" element={<SizeGuide />} />;
+          <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/returns-policy" element={<ReturnsPolicy />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
