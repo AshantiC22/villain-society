@@ -8,7 +8,7 @@
     <title>Villain Culture | Dark Streetwear Clothing Brand</title>
     <meta
       name="description"
-      content="Villain Culture is a dark streetwear clothing brand built for the ones who never fit. Shop oversized tees, jackets, joggers and accessories. Launching August 2026."
+      content="Villain Culture is a dark streetwear clothing brand built for the ones who never fit. Shop oversized tees, jackets, joggers and accessories."
     />
     <meta
       name="keywords"
@@ -18,7 +18,7 @@
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://vllnculture.com" />
 
-    <!-- ── OPEN GRAPH (Facebook Instagram) ── -->
+    <!-- ── OPEN GRAPH ── -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vllnculture.com" />
     <meta
@@ -27,7 +27,7 @@
     />
     <meta
       property="og:description"
-      content="Built for the ones who never fit. Dark streetwear clothing launching August 2026. Join the waitlist."
+      content="Built for the ones who never fit. Dark streetwear clothing. Shop now."
     />
     <meta property="og:image" content="https://vllnculture.com/mascot.png" />
     <meta property="og:site_name" content="Villain Culture" />
@@ -39,7 +39,7 @@
     <meta name="twitter:title" content="Villain Culture | Dark Streetwear" />
     <meta
       name="twitter:description"
-      content="Built for the ones who never fit. Dark streetwear clothing launching August 2026."
+      content="Built for the ones who never fit. Dark streetwear clothing."
     />
     <meta name="twitter:image" content="https://vllnculture.com/mascot.png" />
 
@@ -47,7 +47,11 @@
     <link rel="icon" type="image/png" href="/mascot.png" />
     <link rel="apple-touch-icon" href="/mascot.png" />
 
-    <!-- ── FONTS ── -->
+    <!-- ── THEME ── -->
+    <meta name="theme-color" content="#0A0A0A" />
+    <meta name="msapplication-TileColor" content="#0A0A0A" />
+
+    <!-- ── FONTS — preconnect first then load ── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -55,9 +59,34 @@
       rel="stylesheet"
     />
 
-    <!-- ── THEME ── -->
-    <meta name="theme-color" content="#0A0A0A" />
-    <meta name="msapplication-TileColor" content="#0A0A0A" />
+    <!-- ── PRELOAD CRITICAL ASSETS ── -->
+    <link rel="preload" href="/mascot.png" as="image" />
+    <link rel="preload" href="/products/villain-front.png" as="image" />
+    <link rel="preload" href="/bg-video.mp4" as="video" type="video/mp4" />
+
+    <!-- ── DNS PREFETCH — speeds up API calls ── -->
+    <link
+      rel="dns-prefetch"
+      href="https://52m6m73pkj.execute-api.us-east-2.amazonaws.com"
+    />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://js.stripe.com" />
+
+    <!-- ── PREVENT FLASH OF UNSTYLED CONTENT ── -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #0a0a0a;
+        color: #f5f0e8;
+      }
+      #root {
+        min-height: 100vh;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

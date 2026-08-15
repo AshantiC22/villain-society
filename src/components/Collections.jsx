@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitWaitlist } from "../api";
 
@@ -114,17 +114,39 @@ const TAG_STYLES = {
 
 // ── DETECT MOBILE ──
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
+    const debounced = () => {
+      clearTimeout(handler.t);
+      handler.t = setTimeout(handler, 100);
+    };
+    window.addEventListener("resize", debounced);
+    return () => window.removeEventListener("resize", debounced);
   }, []);
   return isMobile;
 }
 
-// ── FLOATING PARTICLES — desktop only ──
-function Particles() {
+// ── FLOATING PARTICLES — desktop only, memoized ──
+const Particles = memo(() => {
+  const particles = useRef(
+    [...Array(20)].map((_, i) => ({
+      width: Math.random() * 2 + 1,
+      height: Math.random() * 2 + 1,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      color:
+        i % 3 === 0
+          ? "rgba(200,110,15,0.6)"
+          : i % 3 === 1
+            ? "rgba(200,0,0,0.4)"
+            : "rgba(245,240,232,0.2)",
+      dur: 6 + Math.random() * 8,
+      delay: Math.random() * 4,
+      anim: i % 4,
+    })),
+  ).current;
+
   return (
     <div
       style={{
@@ -135,24 +157,20 @@ function Particles() {
         overflow: "hidden",
       }}
     >
-      {[...Array(20)].map((_, i) => (
+      {particles.map((p, i) => (
         <div
           key={i}
           style={{
             position: "absolute",
-            width: Math.random() * 2 + 1 + "px",
-            height: Math.random() * 2 + 1 + "px",
+            width: p.width + "px",
+            height: p.height + "px",
             borderRadius: "50%",
-            background:
-              i % 3 === 0
-                ? "rgba(200,110,15,0.6)"
-                : i % 3 === 1
-                  ? "rgba(200,0,0,0.4)"
-                  : "rgba(245,240,232,0.2)",
-            left: Math.random() * 100 + "%",
-            top: Math.random() * 100 + "%",
-            animation: `float${i % 4} ${6 + Math.random() * 8}s ease-in-out infinite`,
-            animationDelay: Math.random() * 4 + "s",
+            background: p.color,
+            left: p.left + "%",
+            top: p.top + "%",
+            animation: `float${p.anim} ${p.dur}s ease-in-out infinite`,
+            animationDelay: p.delay + "s",
+            willChange: "transform",
           }}
         />
       ))}
@@ -164,15 +182,79 @@ function Particles() {
       `}</style>
     </div>
   );
+});
+
+// ── IMAGE WITH LAZY LOAD ──
+function LazyImage({ src, alt, style, onError, priority = false }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (!src) return;
+    const img = new Image();
+    img.src = src;
+    img.onload = () => setLoaded(true);
+    img.onerror = () => {
+      setError(true);
+      onError?.();
+    };
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src]);
+
+  if (error || !src) return null;
+
+  return (
+    <>
+      {/* Skeleton while loading */}
+      {!loaded && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 100%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 1.5s infinite",
+          }}
+        />
+      )}
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        loading={priority ? "eager" : "lazy"}
+        decoding={priority ? "sync" : "async"}
+        fetchpriority={priority ? "high" : "low"}
+        style={{
+          ...style,
+          opacity: loaded ? 1 : 0,
+          transition: loaded ? "opacity 0.3s ease" : "none",
+        }}
+      />
+    </>
+  );
 }
 
-// ── MOBILE CARD — full width editorial ──
-function MobileCard({ product, index, onClick }) {
+// ── MOBILE CARD ──
+const MobileCard = memo(function MobileCard({ product, index, onClick }) {
   const [pressed, setPressed] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [imgError, setImgError] = useState(false);
   const tagStyle = TAG_STYLES[product.tag] || TAG_STYLES["CORE PIECE"];
   const isEven = index % 2 === 0;
+  const isFirst = index === 0;
+
+  const handleClick = useCallback(() => {
+    if (!revealed) {
+      setRevealed(true);
+      return;
+    }
+    onClick(product);
+  }, [revealed, onClick, product]);
 
   return (
     <div
@@ -183,17 +265,10 @@ function MobileCard({ product, index, onClick }) {
         overflow: "hidden",
       }}
     >
-      {/* Main card */}
       <div
         onTouchStart={() => setPressed(true)}
         onTouchEnd={() => setPressed(false)}
-        onClick={() => {
-          if (!revealed) {
-            setRevealed(true);
-            return;
-          }
-          onClick(product);
-        }}
+        onClick={handleClick}
         style={{
           position: "relative",
           width: "100%",
@@ -206,6 +281,7 @@ function MobileCard({ product, index, onClick }) {
           transform: pressed ? "scale(0.985)" : "scale(1)",
           transition: "transform 0.15s ease",
           border: `1px solid ${revealed ? tagStyle.border : "rgba(200,110,15,0.08)"}`,
+          willChange: "transform",
         }}
       >
         {/* Background roman numeral */}
@@ -249,9 +325,10 @@ function MobileCard({ product, index, onClick }) {
         <div style={{ position: "absolute", inset: 0, zIndex: 2 }}>
           {product.images?.[0] && !imgError ? (
             <>
-              <img
+              <LazyImage
                 src={product.images[0]}
-                alt={product.name}
+                alt={product.name || `Product ${product.number}`}
+                priority={isFirst}
                 onError={() => setImgError(true)}
                 style={{
                   width: "100%",
@@ -259,17 +336,18 @@ function MobileCard({ product, index, onClick }) {
                   objectFit: "contain",
                   padding: "20px",
                   transform: pressed ? "scale(1.04)" : "scale(1)",
-                  transition: "transform 0.3s ease",
+                  transition: "transform 0.3s ease, opacity 0.3s ease",
                   filter: revealed ? "brightness(1.05)" : "brightness(0.7)",
+                  willChange: "transform",
                 }}
               />
-              {/* Gradient overlay */}
               <div
                 style={{
                   position: "absolute",
                   inset: 0,
                   background:
                     "linear-gradient(to bottom, rgba(6,3,1,0.1) 0%, transparent 30%, transparent 50%, rgba(6,3,1,0.95) 100%)",
+                  pointerEvents: "none",
                 }}
               />
             </>
@@ -297,7 +375,7 @@ function MobileCard({ product, index, onClick }) {
           )}
         </div>
 
-        {/* Top left — number */}
+        {/* Top left number */}
         <div
           style={{ position: "absolute", top: "16px", left: "16px", zIndex: 5 }}
         >
@@ -313,7 +391,7 @@ function MobileCard({ product, index, onClick }) {
           </p>
         </div>
 
-        {/* Top right — tag */}
+        {/* Top right tag */}
         <div
           style={{
             position: "absolute",
@@ -352,7 +430,6 @@ function MobileCard({ product, index, onClick }) {
           }}
         >
           {!revealed ? (
-            // BEFORE TAP
             <div
               style={{
                 display: "flex",
@@ -416,7 +493,6 @@ function MobileCard({ product, index, onClick }) {
               </div>
             </div>
           ) : (
-            // AFTER TAP — revealed info
             <div>
               <div
                 style={{
@@ -478,7 +554,6 @@ function MobileCard({ product, index, onClick }) {
                 </p>
               </div>
 
-              {/* Sizes */}
               <div
                 style={{
                   display: "flex",
@@ -506,7 +581,6 @@ function MobileCard({ product, index, onClick }) {
                 ))}
               </div>
 
-              {/* CTA button */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -524,6 +598,7 @@ function MobileCard({ product, index, onClick }) {
                   color: "#0A0A0A",
                   cursor: "pointer",
                   fontWeight: "bold",
+                  WebkitTapHighlightColor: "transparent",
                 }}
               >
                 VIEW PRODUCT →
@@ -532,7 +607,7 @@ function MobileCard({ product, index, onClick }) {
           )}
         </div>
 
-        {/* Close button when revealed */}
+        {/* Close button */}
         {revealed && (
           <button
             onClick={(e) => {
@@ -554,6 +629,7 @@ function MobileCard({ product, index, onClick }) {
               color: tagStyle.color,
               cursor: "pointer",
               zIndex: 10,
+              WebkitTapHighlightColor: "transparent",
             }}
           >
             CLOSE ✕
@@ -561,7 +637,6 @@ function MobileCard({ product, index, onClick }) {
         )}
       </div>
 
-      {/* Bottom rule */}
       <div
         style={{
           height: "1px",
@@ -571,14 +646,16 @@ function MobileCard({ product, index, onClick }) {
       />
     </div>
   );
-}
+});
 
-// ── DESKTOP CARD — original flip card ──
-function DesktopCard({ product, index, onClick }) {
+// ── DESKTOP CARD ──
+const DesktopCard = memo(function DesktopCard({ product, index, onClick }) {
   const [flipped, setFlipped] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const tagStyle = TAG_STYLES[product.tag] || TAG_STYLES["CORE PIECE"];
   const tilt = (index % 2 === 0 ? 1 : -1) * (0.3 + (index % 3) * 0.2);
+  const isFirst = index === 0;
 
   return (
     <div
@@ -592,6 +669,7 @@ function DesktopCard({ product, index, onClick }) {
         transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)",
         zIndex: hovered ? 10 : 1,
         position: "relative",
+        willChange: "transform",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -670,19 +748,40 @@ function DesktopCard({ product, index, onClick }) {
             />
 
             {product.images?.[0] ? (
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  padding: "16px",
-                  transform: hovered ? "scale(1.05)" : "scale(1)",
-                  transition: "transform 0.6s ease",
-                  filter: hovered ? "brightness(1.1)" : "brightness(0.95)",
-                }}
-              />
+              <>
+                {/* Skeleton */}
+                {!loaded && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 100%)",
+                      backgroundSize: "200% 100%",
+                      animation: "shimmer 1.5s infinite",
+                    }}
+                  />
+                )}
+                <img
+                  src={product.images[0]}
+                  alt={product.name || `Product ${product.number}`}
+                  loading={isFirst ? "eager" : "lazy"}
+                  decoding={isFirst ? "sync" : "async"}
+                  fetchpriority={isFirst ? "high" : "low"}
+                  onLoad={() => setLoaded(true)}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    padding: "16px",
+                    transform: hovered ? "scale(1.05)" : "scale(1)",
+                    transition: "transform 0.6s ease, opacity 0.3s ease",
+                    filter: hovered ? "brightness(1.1)" : "brightness(0.95)",
+                    opacity: loaded ? 1 : 0,
+                    willChange: "transform",
+                  }}
+                />
+              </>
             ) : (
               <div
                 style={{
@@ -1001,7 +1100,7 @@ function DesktopCard({ product, index, onClick }) {
       </div>
     </div>
   );
-}
+});
 
 // ── MAIN COLLECTIONS ──
 function Collections() {
@@ -1019,8 +1118,10 @@ function Collections() {
 
   // ── FETCH PRODUCTS ──
   useEffect(() => {
+    const controller = new AbortController();
     fetch(
       "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/inventory",
+      { signal: controller.signal },
     )
       .then((res) => res.json())
       .then((dynamoData) => {
@@ -1039,7 +1140,8 @@ function Collections() {
         setProducts(merged);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.name === "AbortError") return;
         setProducts(
           STATIC_PRODUCTS.map((p) => ({
             ...p,
@@ -1051,16 +1153,29 @@ function Collections() {
         );
         setLoading(false);
       });
+    return () => controller.abort();
   }, []);
 
   // ── FETCH WAITLIST ──
   useEffect(() => {
+    const controller = new AbortController();
     fetch(
       "https://52m6m73pkj.execute-api.us-east-2.amazonaws.com/prod/waitlist",
+      { signal: controller.signal },
     )
       .then((res) => res.json())
       .then((data) => setWaitlistCount(Array.isArray(data) ? data.length : 0))
-      .catch(() => setWaitlistCount(0));
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+
+  // ── VIDEO AUTOPLAY FIX ──
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const play = () => video.play().catch(() => {});
+    video.addEventListener("canplaythrough", play, { once: true });
+    return () => video.removeEventListener("canplaythrough", play);
   }, []);
 
   const filtered =
@@ -1068,7 +1183,10 @@ function Collections() {
       ? products
       : products.filter((p) => p.tag === activeFilter);
 
-  const handleProductClick = (product) => navigate(`/products/${product.id}`);
+  const handleProductClick = useCallback(
+    (product) => navigate(`/products/${product.id}`),
+    [navigate],
+  );
 
   const handleWaitlistSubmit = async () => {
     if (!modalEmail || !modalSize) return;
@@ -1085,12 +1203,12 @@ function Collections() {
     }
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalProduct(null);
     setModalStatus("idle");
     setModalEmail("");
     setModalSize("");
-  };
+  }, []);
 
   return (
     <div
@@ -1110,12 +1228,14 @@ function Collections() {
           loop
           muted
           playsInline
+          preload={isMobile ? "metadata" : "auto"}
           style={{
             width: "100%",
             height: "100%",
             objectFit: "cover",
             opacity: isMobile ? 0.2 : 0.35,
             filter: "saturate(0.6) brightness(0.7)",
+            willChange: "auto",
           }}
         >
           <source src="/collections-bg.mp4" type="video/mp4" />
@@ -1393,9 +1513,7 @@ function Collections() {
             </p>
           </div>
         ) : isMobile ? (
-          // ── MOBILE — vertical feed ──
           <div style={{ padding: "0 0 100px 0" }}>
-            {/* Product count */}
             <div
               style={{
                 padding: "0 16px 16px",
@@ -1425,7 +1543,6 @@ function Collections() {
                 TAP TO REVEAL
               </p>
             </div>
-
             {filtered.map((product, index) => (
               <MobileCard
                 key={product.id}
@@ -1436,7 +1553,6 @@ function Collections() {
             ))}
           </div>
         ) : (
-          // ── DESKTOP — original grid ──
           <div
             style={{
               maxWidth: "1280px",
@@ -1712,9 +1828,10 @@ function Collections() {
       )}
 
       <style>{`
-        @keyframes dot-pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.5; } }
-        @keyframes tapPulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+        @keyframes dot-pulse  { 0%, 100% { opacity: 0.6; transform: scale(1);   } 50% { opacity: 1;   transform: scale(1.3); } }
+        @keyframes pulse      { 0%, 100% { opacity: 0.2; }                         50% { opacity: 0.5; }                        }
+        @keyframes tapPulse   { 0%, 100% { opacity: 0.2; }                         50% { opacity: 0.6; }                        }
+        @keyframes shimmer    { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .collections-feed::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
