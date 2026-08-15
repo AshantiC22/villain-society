@@ -2,23 +2,37 @@ import { useEffect, useState } from "react";
 
 function LoadingScreen({ onComplete }) {
   const [opacity, setOpacity] = useState(1);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
-    // Start fading out after 2 seconds
+    // Preload image first
+    const img = new window.Image();
+    img.src = "/mascot.png";
+    img.onload = () => setImgLoaded(true);
+    img.onerror = () => setImgLoaded(true); // show anyway if error
+  }, []);
+
+  useEffect(() => {
+    if (!imgLoaded) return;
+
+    // Only start timer AFTER image is loaded
     const fadeTimer = setTimeout(() => {
       setOpacity(0);
     }, 2000);
 
-    // Remove completely after fade
     const removeTimer = setTimeout(() => {
+      setShow(false);
       onComplete();
-    }, 2600);
+    }, 2700);
 
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
     };
-  }, []);
+  }, [imgLoaded]);
+
+  if (!show) return null;
 
   return (
     <div
@@ -32,24 +46,30 @@ function LoadingScreen({ onComplete }) {
         justifyContent: "center",
         zIndex: 9999,
         opacity,
-        transition: "opacity 0.6s ease",
+        transition: "opacity 0.7s ease",
       }}
     >
-      {/* 3D spinning mascot */}
+      {/* Mascot — only animates after loaded */}
       <div
         style={{
-          animation: "spin3d 2s linear infinite",
           marginBottom: "32px",
+          opacity: imgLoaded ? 1 : 0,
+          transition: "opacity 0.3s ease",
+          animation: imgLoaded ? "spin3d 2s linear infinite" : "none",
+          willChange: "transform",
         }}
       >
         <img
           src="/mascot.png"
           alt="Villain Culture"
+          width="100"
+          height="100"
           style={{
             width: "100px",
             height: "100px",
             objectFit: "contain",
             filter: "sepia(0.8) saturate(0.6) brightness(1.1)",
+            display: "block",
           }}
         />
       </div>
@@ -62,12 +82,14 @@ function LoadingScreen({ onComplete }) {
           letterSpacing: "8px",
           color: "rgba(200,110,15,0.8)",
           marginBottom: "24px",
+          opacity: imgLoaded ? 1 : 0,
+          transition: "opacity 0.3s ease",
         }}
       >
         VILLAIN CULTURE
       </p>
 
-      {/* Loading bar */}
+      {/* Loading bar — only starts after image loaded */}
       <div
         style={{
           width: "120px",
@@ -75,6 +97,8 @@ function LoadingScreen({ onComplete }) {
           background: "rgba(200,110,15,0.15)",
           borderRadius: "999px",
           overflow: "hidden",
+          opacity: imgLoaded ? 1 : 0,
+          transition: "opacity 0.3s ease",
         }}
       >
         <div
@@ -82,19 +106,20 @@ function LoadingScreen({ onComplete }) {
             height: "100%",
             background: "rgba(200,110,15,0.8)",
             borderRadius: "999px",
-            animation: "loadBar 2s ease forwards",
+            width: imgLoaded ? undefined : "0%",
+            animation: imgLoaded ? "loadBar 2s ease forwards" : "none",
           }}
         />
       </div>
 
       <style>{`
         @keyframes spin3d {
-          0% { transform: perspective(400px) rotateY(0deg); }
+          0%   { transform: perspective(400px) rotateY(0deg);   }
           100% { transform: perspective(400px) rotateY(360deg); }
         }
         @keyframes loadBar {
-          0% { width: 0%; }
-          100% { width: 100%; }
+          0%   { width: 0%;    }
+          100% { width: 100%;  }
         }
       `}</style>
     </div>
